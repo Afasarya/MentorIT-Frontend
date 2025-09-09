@@ -94,7 +94,7 @@ export default function Hero() {
             ))}
           </div>
           <p className="text-sm text-[var(--color-text-dark-primary)] font-medium mb-3 leading-relaxed">
-            "Awalnya rekomendasi dari teman, pas udah coba ikut coursenya jadi tahu kenapa temen ngerekomendasiin. Thank you MentorIT!"
+            &ldquo;Awalnya rekomendasi dari teman, pas udah coba ikut coursenya jadi tahu kenapa temen ngerekomendasiin. Thank you MentorIT!&rdquo;
           </p>
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
