@@ -1,6 +1,7 @@
 import Navbar from "@/components/common/Navbar";
 import Hero from "@/components/home/Hero";
 import Marquelogo from "@/components/home/Marquelogo";
+import Coursehome from "@/components/home/Coursehome";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <Marquelogo />
+      <Coursehome />
     </div>
   );
 }
