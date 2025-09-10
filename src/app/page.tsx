@@ -4,6 +4,7 @@ import Marquelogo from "@/components/home/Marquelogo";
 import Coursehome from "@/components/home/Coursehome";
 import Coursecategory from "@/components/home/Coursecategory";
 import Mentors from "@/components/home/Mentors";
+import Faq from "@/components/home/Testimonials";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Coursehome />
       <Coursecategory />
       <Mentors />
+      <Faq />
     </div>
   );
 }
