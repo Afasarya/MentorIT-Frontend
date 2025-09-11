@@ -38,7 +38,7 @@ export default function Faq() {
   };
 
   return (
-    <section className="py-16" style={{ backgroundColor: '#f5f4fe' }}>
+    <section className="py-16 pb-64" style={{ backgroundColor: '#f5f4fe' }}>
       <div className="container mx-auto px-6 sm:px-8 lg:px-16">
         {/* Horizontal Layout - Typography Left, FAQ Cards Right */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">

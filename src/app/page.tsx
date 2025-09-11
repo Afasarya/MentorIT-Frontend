@@ -6,6 +6,8 @@ import Coursecategory from "@/components/home/Coursecategory";
 import Mentors from "@/components/home/Mentors";
 import Testimonials from "@/components/home/Testimonials";
 import Faq from "@/components/home/Faq";
+import CtaOverlay from "@/components/home/CtaOverlay";
+import Footer from "@/components/common/Footer";
 
 export default function Home() {
   return (
@@ -18,6 +20,8 @@ export default function Home() {
       <Mentors />
       <Testimonials />
       <Faq />
+      <CtaOverlay />
+      <Footer />
     </div>
   );
 }
