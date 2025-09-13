@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="text-white pt-0 pb-8" style={{ backgroundColor: '#030712' }}>
+    <footer className="text-white pt-16 pb-8" style={{ backgroundColor: '#030712' }}>
       <div className="container mx-auto px-6 sm:px-8 lg:px-16">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
