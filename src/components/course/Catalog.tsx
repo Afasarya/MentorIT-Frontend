@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Catalog() {
   const [selectedCategory, setSelectedCategory] = useState('web-development');
@@ -174,8 +175,9 @@ export default function Catalog() {
           {/* Course Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {courses.map((course) => (
-              <div 
+              <Link 
                 key={course.id}
+                href={`/course/${course.id}`}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100"
               >
                 {/* Course Image */}
@@ -224,7 +226,7 @@ export default function Catalog() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
