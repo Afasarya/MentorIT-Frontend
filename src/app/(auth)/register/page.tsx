@@ -3,11 +3,14 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
+  const { register, loading, error, clearError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
+    name: '',
     username: '',
     email: '',
     password: '',
@@ -20,12 +23,28 @@ export default function RegisterPage() {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (error) clearError();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle register logic here
-    console.log('Register attempt:', formData);
+    
+    // Validate password confirmation
+    if (formData.password !== formData.confirmPassword) {
+      // You might want to add a local error state for this
+      alert('Password dan konfirmasi password tidak cocok');
+      return;
+    }
+
+    try {
+      const { confirmPassword, ...registerData } = formData;
+      await register(registerData);
+      // Redirect is handled by the auth context
+    } catch (err) {
+      // Error is handled by auth context and displayed below
+      console.error('Registration error:', err);
+    }
   };
 
   return (
@@ -66,8 +85,36 @@ export default function RegisterPage() {
             </p>
           </div>
 
+          {/* Error Display */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           {/* Register Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name Field */}
+            <div>
+              <label 
+                htmlFor="name" 
+                className="block text-sm font-medium text-[var(--color-text-dark-primary)] mb-2"
+              >
+                Nama Lengkap
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Masukkan nama lengkap Anda"
+                required
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)] disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
+
             {/* Username Field */}
             <div>
               <label 
@@ -82,9 +129,10 @@ export default function RegisterPage() {
                 name="username"
                 value={formData.username}
                 onChange={handleInputChange}
-                placeholder="Text Field"
+                placeholder="Masukkan username unik Anda"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)]"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -102,9 +150,10 @@ export default function RegisterPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="Text Field"
+                placeholder="Masukkan email Anda"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)]"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -123,14 +172,16 @@ export default function RegisterPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="Text Field"
+                  placeholder="Masukkan password Anda"
                   required
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)]"
+                  disabled={loading}
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-text-disabled)] hover:text-[var(--color-text-dark-primary)] transition-colors duration-200"
+                  disabled={loading}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-text-disabled)] hover:text-[var(--color-text-dark-primary)] transition-colors duration-200 disabled:opacity-50"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,14 +212,16 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  placeholder="Text Field"
+                  placeholder="Konfirmasi password Anda"
                   required
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)]"
+                  disabled={loading}
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-text-disabled)] hover:text-[var(--color-text-dark-primary)] transition-colors duration-200"
+                  disabled={loading}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-text-disabled)] hover:text-[var(--color-text-dark-primary)] transition-colors duration-200 disabled:opacity-50"
                 >
                   {showConfirmPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,9 +240,20 @@ export default function RegisterPage() {
             {/* Register Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-[#1f2937] hover:bg-[var(--color-primary)] active:bg-[var(--color-primary-pressed)] text-white font-semibold rounded-xl transition-all duration-200 mt-8"
+              disabled={loading}
+              className="w-full py-3 bg-[#1f2937] hover:bg-[var(--color-primary)] active:bg-[var(--color-primary-pressed)] text-white font-semibold rounded-xl transition-all duration-200 mt-8 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              Daftar
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Memproses...
+                </>
+              ) : (
+                'Daftar'
+              )}
             </button>
           </form>
 
@@ -200,7 +264,7 @@ export default function RegisterPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-[var(--color-text-disabled)]">
+                <span className="px-4 bg-[#f5f4fe] text-[var(--color-text-disabled)]">
                   Sudah punya akun?
                 </span>
               </div>

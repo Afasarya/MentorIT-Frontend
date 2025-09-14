@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
+  const { login, loading, error, clearError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
@@ -17,12 +19,20 @@ export default function LoginPage() {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (error) clearError();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempt:', formData);
+    
+    try {
+      await login(formData);
+      // Redirect is handled by the auth context based on user role
+    } catch (err) {
+      // Error is handled by auth context and displayed below
+      console.error('Login error:', err);
+    }
   };
 
   return (
@@ -60,6 +70,13 @@ export default function LoginPage() {
             </h2>
           </div>
 
+          {/* Error Display */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
@@ -76,9 +93,10 @@ export default function LoginPage() {
                 name="username"
                 value={formData.username}
                 onChange={handleInputChange}
-                placeholder="Text Field"
+                placeholder="Masukkan username Anda"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)]"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -97,14 +115,16 @@ export default function LoginPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="Text Field"
+                  placeholder="Masukkan password Anda"
                   required
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)]"
+                  disabled={loading}
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-all duration-200 text-[var(--color-text-dark-primary)] placeholder-[var(--color-text-disabled)] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-text-disabled)] hover:text-[var(--color-text-dark-primary)] transition-colors duration-200"
+                  disabled={loading}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-text-disabled)] hover:text-[var(--color-text-dark-primary)] transition-colors duration-200 disabled:opacity-50"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,14 +143,38 @@ export default function LoginPage() {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-[#1f2937] hover:bg-[var(--color-primary)] active:bg-[var(--color-primary-pressed)] text-white font-semibold rounded-xl transition-all duration-200 mt-8"
+              disabled={loading}
+              className="w-full py-3 bg-[#1f2937] hover:bg-[var(--color-primary)] active:bg-[var(--color-primary-pressed)] text-white font-semibold rounded-xl transition-all duration-200 mt-8 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              Masuk
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Memproses...
+                </>
+              ) : (
+                'Masuk'
+              )}
             </button>
           </form>
 
-          {/* Back to Home */}
+          {/* Register Link */}
           <div className="mt-8 text-center">
+            <p className="text-sm text-[var(--color-text-disabled)]">
+              Belum punya akun?{' '}
+              <Link
+                href="/register"
+                className="text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] font-medium transition-colors duration-200"
+              >
+                Daftar sekarang
+              </Link>
+            </p>
+          </div>
+
+          {/* Back to Home */}
+          <div className="mt-4 text-center">
             <Link
               href="/"
               className="text-sm text-[var(--color-text-disabled)] hover:text-[var(--color-primary)] transition-colors duration-200"
