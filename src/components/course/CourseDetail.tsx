@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface CourseDetailProps {
   courseId: string;
@@ -419,9 +420,12 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                   <div className="text-3xl font-bold text-[var(--color-text-dark-primary)] mb-4">
                     {course.price.current}
                   </div>
-                  <button className="w-full bg-gray-900 hover:bg-black text-white font-semibold py-4 rounded-xl transition-colors text-base">
+                  <Link 
+                    href={`/course/${courseId}/checkout`}
+                    className="w-full bg-gray-900 hover:bg-black text-white font-semibold py-4 rounded-xl transition-colors text-base block text-center"
+                  >
                     Beli Sekarang
-                  </button>
+                  </Link>
                 </div>
               </div>
               
