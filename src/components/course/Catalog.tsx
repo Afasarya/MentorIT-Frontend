@@ -1,13 +1,94 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function Catalog() {
-  const [selectedCategory, setSelectedCategory] = useState('web-development');
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
-  const categories = [
+interface Course {
+  id: number;
+  title: string;
+  description: string;
+  thumbnail: string;
+  price: number;
+  category_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  icon: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export default function Catalog() {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchCategories();
+    fetchCourses();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/class-categories`);
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/classes`);
+      if (response.ok) {
+        const data = await response.json();
+        setCourses(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter courses based on selected category and search term
+  const filteredCourses = courses.filter(course => {
+    const matchesCategory = selectedCategory === 'all' || course.category_name.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const getThumbnailUrl = (thumbnail: string) => {
+    if (thumbnail.startsWith('http')) {
+      return thumbnail;
+    }
+    return `${API_BASE_URL}/uploads/${thumbnail}`;
+  };
+
+  // Static fallback categories if API fails
+  const fallbackCategories = [
     {
       id: 'web-development',
       name: 'Web Development',
@@ -25,69 +106,6 @@ export default function Catalog() {
       name: 'Data Science', 
       icon: '/images/category-datascience.png',
       color: 'bg-purple-50'
-    }
-  ];
-
-  const courses = [
-    {
-      id: 1,
-      image: '/images/course.png',
-      rating: 4.8,
-      reviewCount: 1190,
-      price: 'Rp1.200.000',
-      title: 'Website Development dengan Laravel dan React JS',
-      instructor: 'Jane Cooper',
-      category: 'web-development'
-    },
-    {
-      id: 2,
-      image: '/images/course.png',
-      rating: 4.8,
-      reviewCount: 1190,
-      price: 'Rp1.200.000',
-      title: 'Website Development dengan Laravel dan React JS',
-      instructor: 'Jane Cooper',
-      category: 'web-development'
-    },
-    {
-      id: 3,
-      image: '/images/course.png',
-      rating: 4.8,
-      reviewCount: 1190,
-      price: 'Rp1.200.000',
-      title: 'Website Development dengan Laravel dan React JS',
-      instructor: 'Jane Cooper',
-      category: 'web-development'
-    },
-    {
-      id: 4,
-      image: '/images/course.png',
-      rating: 4.8,
-      reviewCount: 1190,
-      price: 'Rp1.200.000',
-      title: 'Website Development dengan Laravel dan React JS',
-      instructor: 'Jane Cooper',
-      category: 'web-development'
-    },
-    {
-      id: 5,
-      image: '/images/course.png',
-      rating: 4.8,
-      reviewCount: 1190,
-      price: 'Rp1.200.000',
-      title: 'Website Development dengan Laravel dan React JS',
-      instructor: 'Jane Cooper',
-      category: 'web-development'
-    },
-    {
-      id: 6,
-      image: '/images/course.png',
-      rating: 4.8,
-      reviewCount: 1190,
-      price: 'Rp1.200.000',
-      title: 'Website Development dengan Laravel dan React JS',
-      instructor: 'Jane Cooper',
-      category: 'web-development'
     }
   ];
 
@@ -117,6 +135,8 @@ export default function Catalog() {
                 <input
                   type="text"
                   placeholder="Cari"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full px-4 py-3 pl-12 bg-white border border-gray-200 rounded-xl text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
                 />
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
@@ -135,20 +155,63 @@ export default function Catalog() {
             Kategori
           </h2>
           
-          {/* Category Tabs - Responsive grid layout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-            {categories.map((category) => (
+          {/* Category Tabs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            {/* All Categories Button */}
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`flex items-center space-x-4 px-6 sm:px-7 py-4 sm:py-5 rounded-2xl border-2 transition-all duration-200 w-full ${
+                selectedCategory === 'all'
+                  ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white'
+                  : 'bg-white border-gray-200 hover:border-[var(--color-primary)] text-[var(--color-text-dark-primary)]'
+              }`}
+            >
+              <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                selectedCategory === 'all' ? 'bg-white/20' : 'bg-purple-50'
+              }`}>
+                <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <span className="font-semibold text-base sm:text-lg flex-1 text-left">
+                Semua
+              </span>
+            </button>
+
+            {/* Dynamic Categories */}
+            {categories.length > 0 ? categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
+                onClick={() => setSelectedCategory(category.name)}
                 className={`flex items-center space-x-4 px-6 sm:px-7 py-4 sm:py-5 rounded-2xl border-2 transition-all duration-200 w-full ${
-                  selectedCategory === category.id
+                  selectedCategory === category.name
                     ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white'
                     : 'bg-white border-gray-200 hover:border-[var(--color-primary)] text-[var(--color-text-dark-primary)]'
                 }`}
               >
                 <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  selectedCategory === category.id ? 'bg-white/20' : category.color
+                  selectedCategory === category.name ? 'bg-white/20' : 'bg-purple-50'
+                }`}>
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-base sm:text-lg flex-1 text-left">
+                  {category.name}
+                </span>
+              </button>
+            )) : fallbackCategories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.name)}
+                className={`flex items-center space-x-4 px-6 sm:px-7 py-4 sm:py-5 rounded-2xl border-2 transition-all duration-200 w-full ${
+                  selectedCategory === category.name
+                    ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white'
+                    : 'bg-white border-gray-200 hover:border-[var(--color-primary)] text-[var(--color-text-dark-primary)]'
+                }`}
+              >
+                <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  selectedCategory === category.name ? 'bg-white/20' : category.color
                 }`}>
                   <Image
                     src={category.icon}
@@ -166,89 +229,108 @@ export default function Catalog() {
           </div>
         </div>
 
-        {/* Paling Diminati Section */}
+        {/* Courses Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-[var(--color-text-dark-primary)] mb-8">
-            Paling Diminati
+            {selectedCategory === 'all' ? 'Semua Course' : `Course ${selectedCategory}`}
           </h2>
           
-          {/* Course Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {courses.map((course) => (
-              <Link 
-                key={course.id}
-                href={`/course/${course.id}`}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100"
-              >
-                {/* Course Image */}
-                <div className="relative overflow-hidden">
-                  <Image
-                    src={course.image}
-                    alt={course.title}
-                    width={400}
-                    height={240}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-
-                {/* Course Content */}
-                <div className="p-6">
-                  {/* Rating and Price */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-1">
-                      <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <span className="text-sm font-medium text-[var(--color-text-dark-primary)]">
-                        {course.rating}
-                      </span>
-                      <span className="text-sm text-[var(--color-text-dark-tertiary)]">
-                        ({course.reviewCount})
-                      </span>
+          {loading ? (
+            // Loading skeleton
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 animate-pulse">
+                  <div className="w-full h-48 bg-gray-200"></div>
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="h-4 bg-gray-200 rounded w-20"></div>
+                      <div className="h-4 bg-gray-200 rounded w-24"></div>
                     </div>
-                    <span className="text-lg font-bold text-[var(--color-primary)]">
-                      {course.price}
-                    </span>
-                  </div>
-
-                  {/* Course Title */}
-                  <h3 className="text-lg font-semibold text-[var(--color-text-dark-primary)] mb-4 leading-tight line-clamp-2">
-                    {course.title}
-                  </h3>
-
-                  {/* Instructor */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">JC</span>
+                    <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                      <div className="h-4 bg-gray-200 rounded w-20"></div>
                     </div>
-                    <span className="text-sm text-[var(--color-text-dark-secondary)]">
-                      {course.instructor}
-                    </span>
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          ) : filteredCourses.length > 0 ? (
+            // Course Grid
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {filteredCourses.map((course) => (
+                <Link 
+                  key={course.id}
+                  href={`/course/${course.id}`}
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100"
+                >
+                  {/* Course Image */}
+                  <div className="relative overflow-hidden">
+                    <Image
+                      src={getThumbnailUrl(course.thumbnail)}
+                      alt={course.title}
+                      width={400}
+                      height={240}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/images/course.png'; // Fallback image
+                      }}
+                    />
+                  </div>
 
-        {/* Load More Button */}
-        <div className="text-center mt-12">
-          <button className="inline-flex items-center px-8 py-3 bg-[var(--color-text-dark-primary)] hover:bg-[var(--color-primary)] text-white font-medium rounded-full transition-all duration-200">
-            Lihat Semuanya
-            <svg 
-              className="ml-2 w-4 h-4" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M17 8l4 4m0 0l-4 4m4-4H3" 
-              />
-            </svg>
-          </button>
+                  {/* Course Content */}
+                  <div className="p-6">
+                    {/* Rating and Price */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-1">
+                        <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span className="text-sm font-medium text-[var(--color-text-dark-primary)]">
+                          4.8
+                        </span>
+                        <span className="text-sm text-[var(--color-text-dark-tertiary)]">
+                          (1190)
+                        </span>
+                      </div>
+                      <span className="text-lg font-bold text-[var(--color-primary)]">
+                        {formatPrice(course.price)}
+                      </span>
+                    </div>
+
+                    {/* Course Title */}
+                    <h3 className="text-lg font-semibold text-[var(--color-text-dark-primary)] mb-4 leading-tight line-clamp-2">
+                      {course.title}
+                    </h3>
+
+                    {/* Category */}
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">{course.category_name.charAt(0).toUpperCase()}</span>
+                      </div>
+                      <span className="text-sm text-[var(--color-text-dark-secondary)]">
+                        {course.category_name}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            // No courses found
+            <div className="text-center py-12">
+              <div className="w-24 h-24 mx-auto mb-4 text-gray-300">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">Tidak ada course ditemukan</h3>
+              <p className="text-gray-500">
+                {searchTerm ? 'Coba dengan kata kunci yang berbeda' : 'Belum ada course tersedia untuk kategori ini'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
