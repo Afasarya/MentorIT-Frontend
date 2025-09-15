@@ -16,6 +16,50 @@ export interface User {
   access_token: string;
   refresh_token: string;
   expires_at: string;
+  classes?: Class[];
+}
+
+export interface UserListResponse {
+  users: User[];
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export interface CreateUserRequest {
+  username: string;
+  name: string;
+  email: string;
+  password: string;
+  role: 'student' | 'teacher' | 'admin';
+  exp?: number;
+}
+
+export interface UpdateUserRequest {
+  username?: string;
+  name?: string;
+  email?: string;
+  role?: 'student' | 'teacher' | 'admin';
+  exp?: number;
+}
+
+export interface UpdatePasswordRequest {
+  password: string;
+}
+
+export interface Class {
+  id: number;
+  title: string;
+  description: string;
+  thumbnail: string;
+  price: number;
+  formatted_price: string;
+  trailer: string;
+  category_name: string;
+  class_category_id: number;
 }
 
 export interface LoginRequest {
@@ -74,7 +118,6 @@ class ApiClient {
 
     try {
       console.log('Making API request to:', url);
-      console.log('Request payload:', options.body);
       
       const response = await fetch(url, config);
       
@@ -95,6 +138,18 @@ class ApiClient {
       console.log('Response data:', data);
 
       if (!response.ok) {
+        // If token is invalid/expired and this isn't already a refresh request
+        if (response.status === 401 && !endpoint.includes('/auth/refresh-token')) {
+          console.log('Token appears to be invalid, clearing auth data');
+          // Clear auth data on 401 errors
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('expires_at');
+            localStorage.removeItem('user_data');
+          }
+        }
+        
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
 
@@ -140,6 +195,56 @@ class ApiClient {
   async logout(): Promise<ApiResponse<null>> {
     return this.request('/api/auth/logout', {
       method: 'GET',
+    });
+  }
+
+  // User Management endpoints
+  async getUsers(params?: {
+    page?: number;
+    limit?: number;
+    role?: 'student' | 'teacher' | 'admin';
+    search?: string;
+  }): Promise<ApiResponse<UserListResponse>> {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.role) searchParams.append('role', params.role);
+    if (params?.search) searchParams.append('search', params.search);
+
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/api/admin/users?${queryString}` : '/api/admin/users';
+    
+    return this.request<UserListResponse>(endpoint);
+  }
+
+  async getUserById(id: number): Promise<ApiResponse<User>> {
+    return this.request<User>(`/api/admin/users/${id}`);
+  }
+
+  async createUser(userData: CreateUserRequest): Promise<ApiResponse<User>> {
+    return this.request<User>('/api/admin/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async updateUser(id: number, userData: UpdateUserRequest): Promise<ApiResponse<User>> {
+    return this.request<User>(`/api/admin/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async deleteUser(id: number): Promise<ApiResponse<null>> {
+    return this.request<null>(`/api/admin/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updateUserPassword(id: number, passwordData: UpdatePasswordRequest): Promise<ApiResponse<null>> {
+    return this.request<null>(`/api/admin/users/${id}/password`, {
+      method: 'PUT',
+      body: JSON.stringify(passwordData),
     });
   }
 }

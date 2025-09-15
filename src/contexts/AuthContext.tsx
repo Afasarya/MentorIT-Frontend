@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import { apiClient, User, LoginRequest, RegisterRequest } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
@@ -34,6 +34,7 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const refreshPromiseRef = useRef<Promise<void> | null>(null);
 
   const clearAuthData = useCallback(() => {
     localStorage.removeItem('access_token');
@@ -43,30 +44,62 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
     setUser(null);
   }, []);
 
-  const validateAndRefreshToken = useCallback(async () => {
-    const refreshTokenValue = localStorage.getItem('refresh_token');
-    if (!refreshTokenValue) throw new Error('No refresh token');
-
-    try {
-      const response = await apiClient.refreshToken({ refresh_token: refreshTokenValue });
-      
-      if (response.data) {
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        localStorage.setItem('expires_at', response.data.expires_at);
-      }
-    } catch (error) {
-      throw error;
-    }
+  const isTokenExpired = useCallback((expiresAt: string): boolean => {
+    const expirationTime = new Date(expiresAt).getTime();
+    const currentTime = new Date().getTime();
+    // Add 5 minute buffer
+    return currentTime >= (expirationTime - 5 * 60 * 1000);
   }, []);
+
+  const validateAndRefreshToken = useCallback(async (): Promise<void> => {
+    // Prevent multiple concurrent refresh requests
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
+    }
+
+    const refreshTokenValue = localStorage.getItem('refresh_token');
+    const expiresAt = localStorage.getItem('expires_at');
+    
+    if (!refreshTokenValue || !expiresAt) {
+      throw new Error('No refresh token or expiry data');
+    }
+
+    // Check if token needs refresh
+    if (!isTokenExpired(expiresAt)) {
+      return; // Token is still valid
+    }
+
+    const refreshPromise = (async () => {
+      try {
+        console.log('Refreshing token...');
+        const response = await apiClient.refreshToken({ refresh_token: refreshTokenValue });
+        
+        if (response.data) {
+          localStorage.setItem('access_token', response.data.access_token);
+          localStorage.setItem('refresh_token', response.data.refresh_token);
+          localStorage.setItem('expires_at', response.data.expires_at);
+          console.log('Token refreshed successfully');
+        }
+      } catch (error) {
+        console.error('Token refresh failed:', error);
+        throw error;
+      } finally {
+        refreshPromiseRef.current = null;
+      }
+    })();
+
+    refreshPromiseRef.current = refreshPromise;
+    return refreshPromise;
+  }, [isTokenExpired]);
 
   const checkAuthStatus = useCallback(async () => {
     try {
       const userData = localStorage.getItem('user_data');
       const accessToken = localStorage.getItem('access_token');
       const refreshToken = localStorage.getItem('refresh_token');
+      const expiresAt = localStorage.getItem('expires_at');
       
-      if (!accessToken || !refreshToken || !userData) {
+      if (!accessToken || !refreshToken || !userData || !expiresAt) {
         setLoading(false);
         return;
       }
@@ -75,7 +108,7 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
       
-      // Try to refresh token to ensure it's still valid
+      // Check if token needs refresh
       try {
         await validateAndRefreshToken();
       } catch (error) {
@@ -188,18 +221,9 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
 
   const refreshToken = async () => {
     try {
-      const refreshTokenValue = localStorage.getItem('refresh_token');
-      if (!refreshTokenValue) throw new Error('No refresh token');
-
-      const response = await apiClient.refreshToken({ refresh_token: refreshTokenValue });
-      
-      if (response.data) {
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        localStorage.setItem('expires_at', response.data.expires_at);
-      }
+      await validateAndRefreshToken();
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      console.error('Manual token refresh failed:', error);
       clearAuthData();
       router.push('/login');
     }
