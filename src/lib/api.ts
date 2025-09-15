@@ -293,12 +293,22 @@ class ApiClient {
       const contentType = response.headers.get('content-type');
       let data;
       
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
+      // Handle empty response body (common for logout, delete operations)
+      const responseText = await response.text();
+      
+      if (responseText.trim() === '') {
+        // Empty response - return a default success response
+        data = { message: 'Success' };
+      } else if (contentType && contentType.includes('application/json')) {
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          throw new Error(`Invalid JSON response: ${responseText}`);
+        }
       } else {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error(`Server returned non-JSON response: ${text}`);
+        console.error('Non-JSON response:', responseText);
+        throw new Error(`Server returned non-JSON response: ${responseText}`);
       }
 
       console.log('Response data:', data);

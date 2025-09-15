@@ -208,12 +208,15 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
       // Try to call logout endpoint, but don't fail if it doesn't work
       try {
         await apiClient.logout();
+        console.log('Logout API call successful');
       } catch (error) {
         console.error('Logout API call failed:', error);
+        // Don't throw here - we still want to clear local data even if API fails
       }
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      // Always clear auth data regardless of API call success
       clearAuthData();
       router.push('/');
     }
