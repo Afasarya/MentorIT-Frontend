@@ -174,7 +174,7 @@ export default function SubmitProjectPage({ params }: SubmitProjectPageProps) {
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Project Not Found</h3>
-              <p className="text-gray-600 mb-6">The project you're trying to submit doesn't exist.</p>
+              <p className="text-gray-600 mb-6">The project you&apos;re trying to submit doesn&apos;t exist.</p>
               <Link
                 href="/student/projects"
                 className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-xl transition-colors"
