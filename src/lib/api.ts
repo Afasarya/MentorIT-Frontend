@@ -96,11 +96,26 @@ export interface UpdateClassRequest {
   course_details?: string;
 }
 
+// Course category interfaces
 export interface ClassCategory {
   id: number;
   name: string;
   description: string;
   icon: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  description: string;
+  icon?: File;
+}
+
+export interface UpdateCategoryRequest {
+  name?: string;
+  description?: string;
+  icon?: File;
 }
 
 export interface Module {
@@ -250,6 +265,27 @@ export interface ReviewProjectSubmissionRequest {
   review_note?: string;
   grade?: string;
   points?: number;
+}
+
+// Payment interfaces
+export interface MidtransResponse {
+  token: string;
+  redirect_url: string;
+}
+
+export interface Transaction {
+  id: number;
+  order_id: string;
+  user_id: number;
+  class_id: number;
+  amount: number;
+  status: 'pending' | 'paid' | 'failed' | 'challenge' | 'unknown';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaymentRequest {
+  class_id: number;
 }
 
 class ApiClient {
@@ -448,6 +484,11 @@ class ApiClient {
     return this.request<Class>(`/api/classes/class/${id}`);
   }
 
+  // Get enrolled classes for current student
+  async getMyClasses(): Promise<ApiResponse<Class[]>> {
+    return this.request<Class[]>('/api/classes/my-classes');
+  }
+
   async createClass(data: CreateClassRequest): Promise<ApiResponse<Class>> {
     const formData = new FormData();
     formData.append('title', data.title);
@@ -505,13 +546,43 @@ class ApiClient {
     return this.request<ClassCategory[]>('/api/classes/category');
   }
 
-  async createClassCategory(categoryData: FormData): Promise<ApiResponse<ClassCategory>> {
+  async getClassCategory(id: number): Promise<ApiResponse<ClassCategory>> {
+    return this.request<ClassCategory>(`/api/classes/category/${id}`);
+  }
+
+  async createClassCategory(categoryData: CreateCategoryRequest): Promise<ApiResponse<ClassCategory>> {
+    const formData = new FormData();
+    formData.append('name', categoryData.name);
+    formData.append('description', categoryData.description);
+    formData.append('icon', categoryData.icon);
+
     return this.request<ClassCategory>('/api/classes/category', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`,
       },
-      body: categoryData,
+      body: formData,
+    });
+  }
+
+  async updateClassCategory(id: number, categoryData: UpdateCategoryRequest): Promise<ApiResponse<ClassCategory>> {
+    const formData = new FormData();
+    if (categoryData.name) formData.append('name', categoryData.name);
+    if (categoryData.description) formData.append('description', categoryData.description);
+    if (categoryData.icon) formData.append('icon', categoryData.icon);
+
+    return this.request<ClassCategory>(`/api/classes/category/${id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+      body: formData,
+    });
+  }
+
+  async deleteClassCategory(id: number): Promise<ApiResponse<null>> {
+    return this.request<null>(`/api/classes/category/${id}`, {
+      method: 'DELETE',
     });
   }
 
@@ -627,6 +698,26 @@ class ApiClient {
       method: 'PUT',
       body: JSON.stringify(data),
     });
+  }
+
+  // Payment endpoints
+  async buyClass(classId: number): Promise<ApiResponse<MidtransResponse>> {
+    return this.request<MidtransResponse>(`/api/classes/buy-class/${classId}`, {
+      method: 'POST',
+    });
+  }
+
+  async getTransactionStatus(orderId: string): Promise<ApiResponse<Transaction>> {
+    return this.request<Transaction>(`/api/classes/transaction/${orderId}`);
+  }
+
+  // Add manual transaction status check
+  async checkTransactionStatus(orderId: string): Promise<ApiResponse<Transaction>> {
+    return this.request<Transaction>(`/api/classes/check-transaction/${orderId}`);
+  }
+
+  async getUserTransactions(): Promise<ApiResponse<Transaction[]>> {
+    return this.request<Transaction[]>('/api/classes/transactions');
   }
 }
 

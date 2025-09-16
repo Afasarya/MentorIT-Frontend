@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { apiClient } from '@/lib/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
@@ -29,12 +30,14 @@ export default function Catalog() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchCategories();
     fetchCourses();
+    fetchEnrolledCourses();
   }, []);
 
   const fetchCategories = async () => {
@@ -64,6 +67,23 @@ export default function Catalog() {
     }
   };
 
+  const fetchEnrolledCourses = async () => {
+    try {
+      // Check if user is logged in and is a student
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+
+      const enrolledResponse = await apiClient.getMyClasses();
+      if (enrolledResponse.data) {
+        const enrolledIds = new Set(enrolledResponse.data.map(course => course.id));
+        setEnrolledCourseIds(enrolledIds);
+      }
+    } catch (error) {
+      console.log('Could not fetch enrolled courses:', error);
+      // User might not be logged in or not a student, this is fine
+    }
+  };
+
   // Filter courses based on selected category and search term
   const filteredCourses = courses.filter(course => {
     const matchesCategory = selectedCategory === 'all' || course.category_name.toLowerCase() === selectedCategory.toLowerCase();
@@ -87,6 +107,10 @@ export default function Catalog() {
     // Remove "uploads/" prefix if it exists to avoid duplication
     const cleanPath = thumbnail.startsWith('uploads/') ? thumbnail.substring('uploads/'.length) : thumbnail;
     return `${API_BASE_URL}/uploads/${cleanPath}`;
+  };
+
+  const isEnrolled = (courseId: number) => {
+    return enrolledCourseIds.has(courseId);
   };
 
   // Static fallback categories if API fails
@@ -264,8 +288,17 @@ export default function Catalog() {
                 <Link 
                   key={course.id}
                   href={`/course/${course.id}`}
-                  className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100"
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100 relative"
                 >
+                  {/* Enrolled Badge */}
+                  {isEnrolled(course.id) && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <div className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                        ✓ Sudah Dibeli
+                      </div>
+                    </div>
+                  )}
+
                   {/* Course Image */}
                   <div className="relative overflow-hidden">
                     <Image
@@ -297,7 +330,7 @@ export default function Catalog() {
                         </span>
                       </div>
                       <span className="text-lg font-bold text-[var(--color-primary)]">
-                        {formatPrice(course.price)}
+                        {isEnrolled(course.id) ? 'Sudah Dibeli' : formatPrice(course.price)}
                       </span>
                     </div>
 
@@ -307,13 +340,22 @@ export default function Catalog() {
                     </h3>
 
                     {/* Category */}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">{course.category_name.charAt(0).toUpperCase()}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">{course.category_name.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <span className="text-sm text-[var(--color-text-dark-secondary)]">
+                          {course.category_name}
+                        </span>
                       </div>
-                      <span className="text-sm text-[var(--color-text-dark-secondary)]">
-                        {course.category_name}
-                      </span>
+                      
+                      {/* Action Button */}
+                      {isEnrolled(course.id) && (
+                        <span className="text-xs text-green-600 font-semibold">
+                          Mulai Belajar →
+                        </span>
+                      )}
                     </div>
                   </div>
                 </Link>

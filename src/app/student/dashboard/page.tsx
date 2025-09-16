@@ -4,49 +4,42 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import StudentLayout from '@/components/student/StudentLayout';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { apiClient, Class } from '@/lib/api';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const [enrolledCourses, setEnrolledCourses] = useState<Class[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data for dashboard
+  // Fetch enrolled courses on component mount
+  useEffect(() => {
+    const fetchEnrolledCourses = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.getMyClasses();
+        setEnrolledCourses(response.data || []);
+      } catch (error) {
+        console.error('Error fetching enrolled courses:', error);
+        setError(error instanceof Error ? error.message : 'Failed to fetch courses');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEnrolledCourses();
+  }, []);
+
+  // Calculate dynamic stats based on enrolled courses
   const stats = {
-    coursesEnrolled: 3,
-    coursesCompleted: 1,
-    totalPoints: 2450,
+    coursesEnrolled: enrolledCourses.length,
+    coursesCompleted: 0, // You can implement progress tracking later
+    totalPoints: 2450, // This would come from user profile or separate endpoint
     currentStreak: 7,
     totalLearningHours: 45,
-    certificates: 2,
+    certificates: 0,
   };
-
-  const recentCourses = [
-    {
-      id: 1,
-      title: 'React.js Fundamentals',
-      progress: 75,
-      thumbnail: '/images/course.png',
-      nextLesson: 'State Management with Hooks',
-      instructor: 'John Doe',
-      timeLeft: '2 weeks left'
-    },
-    {
-      id: 2,
-      title: 'Laravel Backend Development',
-      progress: 45,
-      thumbnail: '/images/course.png',
-      nextLesson: 'Building REST APIs',
-      instructor: 'Jane Smith',
-      timeLeft: '1 month left'
-    },
-    {
-      id: 3,
-      title: 'Python for Data Science',
-      progress: 90,
-      thumbnail: '/images/course.png',
-      nextLesson: 'Machine Learning Basics',
-      instructor: 'Mike Johnson',
-      timeLeft: 'Almost done!'
-    }
-  ];
 
   const recentAchievements = [
     {
@@ -185,46 +178,87 @@ export default function StudentDashboard() {
                   </Link>
                 </div>
                 
-                <div className="space-y-4">
-                  {recentCourses.map((course) => (
-                    <div key={course.id} className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 mr-4">
-                        <img 
-                          src={course.thumbnail} 
-                          alt={course.title}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-[var(--color-text-dark-primary)] mb-1 truncate">
-                          {course.title}
-                        </h3>
-                        <p className="text-sm text-[var(--color-text-dark-secondary)] mb-2">
-                          Next: {course.nextLesson}
-                        </p>
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1">
-                            <div className="flex justify-between text-xs text-gray-600 mb-1">
-                              <span>Progress</span>
-                              <span>{course.progress}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div
-                                className="bg-[var(--color-primary)] h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${course.progress}%` }}
-                              ></div>
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-12">
+                    <div className="text-red-500 mb-4">
+                      <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 18.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <p className="text-lg font-medium">Error Loading Courses</p>
+                      <p className="text-sm text-gray-500 mt-1">{error}</p>
+                    </div>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                ) : enrolledCourses.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-400 mb-4">
+                      <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      <p className="text-lg font-medium text-gray-700">Belum Ada Course</p>
+                      <p className="text-sm text-gray-500 mt-1">Mulai dengan membeli course pertama Anda!</p>
+                    </div>
+                    <Link 
+                      href="/course" 
+                      className="inline-block px-6 py-3 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors"
+                    >
+                      Jelajahi Course
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {enrolledCourses.slice(0, 3).map((course) => (
+                      <div key={course.id} className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                        <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 mr-4 overflow-hidden">
+                          <img 
+                            src={course.thumbnail ? `http://localhost:8080/${course.thumbnail}` : '/images/course.png'} 
+                            alt={course.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-[var(--color-text-dark-primary)] mb-1 truncate">
+                            {course.title}
+                          </h3>
+                          <p className="text-sm text-[var(--color-text-dark-secondary)] mb-2">
+                            {course.category_name} • {course.level} • {course.member_count} students
+                          </p>
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1">
+                              <div className="flex justify-between text-xs text-gray-600 mb-1">
+                                <span>Progress</span>
+                                <span>0%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-[var(--color-primary)] h-2 rounded-full transition-all duration-300"
+                                  style={{ width: '0%' }}
+                                ></div>
+                              </div>
                             </div>
                           </div>
                         </div>
+                        <div className="ml-4">
+                          <Link 
+                            href={`/course/${course.id}`}
+                            className="px-4 py-2 bg-[var(--color-primary)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors"
+                          >
+                            Lanjutkan
+                          </Link>
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <button className="px-4 py-2 bg-[var(--color-primary)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors">
-                          Lanjutkan
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Recent Achievements */}

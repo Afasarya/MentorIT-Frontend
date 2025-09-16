@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { apiClient } from '@/lib/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
@@ -53,9 +54,12 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [checkingEnrollment, setCheckingEnrollment] = useState(true);
 
   useEffect(() => {
     fetchCourseData();
+    checkEnrollmentStatus();
   }, [courseId]);
 
   const fetchCourseData = async () => {
@@ -101,6 +105,31 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
       setError('Failed to load course details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkEnrollmentStatus = async () => {
+    try {
+      setCheckingEnrollment(true);
+      // Check if user is logged in and is a student
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        setIsEnrolled(false);
+        return;
+      }
+
+      const enrolledResponse = await apiClient.getMyClasses();
+      if (enrolledResponse.data) {
+        const isUserEnrolled = enrolledResponse.data.some(course => 
+          course.id === parseInt(courseId)
+        );
+        setIsEnrolled(isUserEnrolled);
+      }
+    } catch (error) {
+      console.log('Could not check enrollment status:', error);
+      setIsEnrolled(false);
+    } finally {
+      setCheckingEnrollment(false);
     }
   };
 
@@ -189,7 +218,19 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
       <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pt-20 pb-16">
         
         {/* Course Header Section - Dibungkus border putih terpisah */}
-        <div className="bg-white rounded-2xl p-8 sm:p-12 mb-8 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-2xl p-8 sm:p-12 mb-8 shadow-sm border border-gray-100 relative">
+          {/* Enrollment Badge */}
+          {isEnrolled && (
+            <div className="absolute top-6 right-6">
+              <div className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg flex items-center space-x-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Sudah Terdaftar</span>
+              </div>
+            </div>
+          )}
+
           <div className="text-center">
             {/* Course Title - Center */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[var(--color-text-dark-primary)] mb-6 leading-tight max-w-4xl mx-auto">
@@ -502,16 +543,49 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
               {/* Price and CTA Section - Top of sidebar sesuai Figma */}
               <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
                 <div className="mb-6">
-                  <p className="text-sm text-[var(--color-text-dark-secondary)] mb-2">Harga</p>
-                  <div className="text-3xl font-bold text-[var(--color-text-dark-primary)] mb-4">
-                    {course.formatted_price || `Rp${course.price.toLocaleString('id-ID')}`}
-                  </div>
-                  <Link 
-                    href={`/course/${courseId}/checkout`}
-                    className="w-full bg-gray-900 hover:bg-black text-white font-semibold py-4 rounded-xl transition-colors text-base block text-center"
-                  >
-                    Beli Sekarang
-                  </Link>
+                  {!checkingEnrollment && (
+                    <>
+                      {isEnrolled ? (
+                        <>
+                          <div className="text-center mb-6">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                              <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <p className="text-lg font-semibold text-green-600 mb-2">Anda sudah terdaftar!</p>
+                            <p className="text-sm text-[var(--color-text-dark-secondary)]">Selamat belajar dan raih sertifikatmu</p>
+                          </div>
+                          <Link 
+                            href={`/course/${courseId}/learn`}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-xl transition-colors text-base block text-center"
+                          >
+                            Mulai Belajar
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm text-[var(--color-text-dark-secondary)] mb-2">Harga</p>
+                          <div className="text-3xl font-bold text-[var(--color-text-dark-primary)] mb-4">
+                            {course.formatted_price || `Rp${course.price.toLocaleString('id-ID')}`}
+                          </div>
+                          <Link 
+                            href={`/course/${courseId}/checkout`}
+                            className="w-full bg-gray-900 hover:bg-black text-white font-semibold py-4 rounded-xl transition-colors text-base block text-center"
+                          >
+                            Beli Sekarang
+                          </Link>
+                        </>
+                      )}
+                    </>
+                  )}
+                  
+                  {checkingEnrollment && (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)] mx-auto mb-4"></div>
+                      <p className="text-sm text-[var(--color-text-dark-secondary)]">Checking enrollment status...</p>
+                    </div>
+                  )}
                 </div>
               </div>
               
