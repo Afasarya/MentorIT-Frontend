@@ -27,6 +27,10 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
     category_name: '',
     price: '',
     trailer: '',
+    level: '',
+    target_audience: '',
+    benefits: '',
+    course_details: '',
     thumbnail: null as File | null
   });
 
@@ -54,6 +58,10 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
           category_name: classData.category_name,
           price: classData.price.toString(),
           trailer: classData.trailer,
+          level: classData.level || '',
+          target_audience: classData.target_audience || '',
+          benefits: classData.benefits || '',
+          course_details: classData.course_details || '',
           thumbnail: null
         });
         
@@ -189,6 +197,10 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
         category_name: formData.category_name,
         price: priceValue.toString(),
         trailer: formData.trailer.trim(),
+        level: formData.level.trim() || undefined,
+        target_audience: formData.target_audience.trim() || undefined,
+        benefits: formData.benefits.trim() || undefined,
+        course_details: formData.course_details.trim() || undefined,
       };
 
       // Only include thumbnail if a new one was selected
@@ -218,7 +230,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
           <div className="p-6">
             <div className="flex justify-center items-center h-64">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6366F1] mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading course data...</p>
               </div>
             </div>
@@ -280,7 +292,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         name="title"
                         value={formData.title}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
                           errors.title ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="Enter course title..."
@@ -301,7 +313,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         value={formData.description}
                         onChange={handleInputChange}
                         rows={5}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors resize-none text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900 ${
                           errors.description ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="Enter course description..."
@@ -323,7 +335,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                           name="category_name"
                           value={formData.category_name}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 ${
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
                             errors.category_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                           }`}
                         >
@@ -351,7 +363,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                           name="price"
                           value={formData.price}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 ${
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
                             errors.price ? 'border-red-300 bg-red-50' : 'border-gray-300'
                           }`}
                           placeholder="299000"
@@ -365,6 +377,25 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                       </div>
                     </div>
 
+                    {/* Level */}
+                    <div>
+                      <label htmlFor="level" className="block text-sm font-medium text-gray-900 mb-2">
+                        Level
+                      </label>
+                      <select
+                        id="level"
+                        name="level"
+                        value={formData.level}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900"
+                      >
+                        <option value="">Select level</option>
+                        <option value="Mudah">Mudah</option>
+                        <option value="Sedang">Sedang</option>
+                        <option value="Sulit">Sulit</option>
+                      </select>
+                    </div>
+
                     {/* Trailer URL */}
                     <div>
                       <label htmlFor="trailer" className="block text-sm font-medium text-gray-900 mb-2">
@@ -376,7 +407,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         name="trailer"
                         value={formData.trailer}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
                           errors.trailer ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="https://youtube.com/watch?v=..."
@@ -387,6 +418,54 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                       <p className="text-sm text-gray-600 mt-1">
                         YouTube, Vimeo, or other video platform URL
                       </p>
+                    </div>
+
+                    {/* Target Audience */}
+                    <div>
+                      <label htmlFor="target_audience" className="block text-sm font-medium text-gray-900 mb-2">
+                        Target Audience
+                      </label>
+                      <textarea
+                        id="target_audience"
+                        name="target_audience"
+                        value={formData.target_audience}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        placeholder="Who is this course for? (e.g., Beginners, Students, Professionals)"
+                      />
+                    </div>
+
+                    {/* Benefits */}
+                    <div>
+                      <label htmlFor="benefits" className="block text-sm font-medium text-gray-900 mb-2">
+                        Course Benefits
+                      </label>
+                      <textarea
+                        id="benefits"
+                        name="benefits"
+                        value={formData.benefits}
+                        onChange={handleInputChange}
+                        rows={4}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        placeholder="What will students learn and achieve from this course?"
+                      />
+                    </div>
+
+                    {/* Course Details */}
+                    <div>
+                      <label htmlFor="course_details" className="block text-sm font-medium text-gray-900 mb-2">
+                        Course Details
+                      </label>
+                      <textarea
+                        id="course_details"
+                        name="course_details"
+                        value={formData.course_details}
+                        onChange={handleInputChange}
+                        rows={4}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        placeholder="Additional course details, requirements, or information"
+                      />
                     </div>
                   </div>
                 </div>
@@ -401,7 +480,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-900 mb-2">
-                        Update Image (Optional)
+                        Upload New Image
                       </label>
                       <input
                         type="file"
@@ -409,7 +488,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         name="thumbnail"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#6366F1] file:text-white hover:file:bg-[#4F46E5]"
                       />
                       {errors.thumbnail && (
                         <p className="text-red-600 text-sm mt-1">{errors.thumbnail}</p>
@@ -422,7 +501,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                     {/* Thumbnail Preview */}
                     {thumbnailPreview && (
                       <div>
-                        <p className="text-sm font-medium text-gray-900 mb-2">Current/Preview</p>
+                        <p className="text-sm font-medium text-gray-900 mb-2">Preview</p>
                         <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
                           <img
                             src={thumbnailPreview}
@@ -443,7 +522,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+                      className="w-full bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-300 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
                     >
                       {loading ? (
                         <>
@@ -453,7 +532,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                       ) : (
                         <>
                           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                           </svg>
                           Update Course
                         </>

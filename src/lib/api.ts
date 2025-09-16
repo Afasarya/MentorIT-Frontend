@@ -60,7 +60,14 @@ export interface Class {
   formatted_price: string;
   category_name: string;
   class_category_id: number;
+  member_count: number;
+  level: string;
+  target_audience: string;
+  benefits: string;
+  course_details: string;
   modules?: Module[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateClassRequest {
@@ -70,6 +77,10 @@ export interface CreateClassRequest {
   trailer: string;
   price: string;
   category_name: string;
+  level?: string;
+  target_audience?: string;
+  benefits?: string;
+  course_details?: string;
 }
 
 export interface UpdateClassRequest {
@@ -79,6 +90,10 @@ export interface UpdateClassRequest {
   trailer?: string;
   price?: string;
   category_name?: string;
+  level?: string;
+  target_audience?: string;
+  benefits?: string;
+  course_details?: string;
 }
 
 export interface ClassCategory {
@@ -441,6 +456,10 @@ class ApiClient {
     formData.append('trailer', data.trailer);
     formData.append('price', data.price);
     formData.append('category_name', data.category_name);
+    if (data.level) formData.append('level', data.level);
+    if (data.target_audience) formData.append('target_audience', data.target_audience);
+    if (data.benefits) formData.append('benefits', data.benefits);
+    if (data.course_details) formData.append('course_details', data.course_details);
 
     return this.request('/api/classes/create', {
       method: 'POST',
@@ -461,6 +480,10 @@ class ApiClient {
     if (data.trailer) formData.append('trailer', data.trailer);
     if (data.price) formData.append('price', data.price);
     if (data.category_name) formData.append('category_name', data.category_name);
+    if (data.level) formData.append('level', data.level);
+    if (data.target_audience) formData.append('target_audience', data.target_audience);
+    if (data.benefits) formData.append('benefits', data.benefits);
+    if (data.course_details) formData.append('course_details', data.course_details);
 
     return this.request(`/api/classes/update/${id}`, {
       method: 'PUT',

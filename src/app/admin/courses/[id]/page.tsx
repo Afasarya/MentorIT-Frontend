@@ -218,8 +218,8 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
           <div className="p-6">
             <div className="flex justify-center items-center h-64">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)] mx-auto mb-4"></div>
-                <p className="text-[var(--color-text-dark-secondary)]">Loading class...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6366F1] mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading class...</p>
               </div>
             </div>
           </div>
@@ -239,13 +239,13 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-[var(--color-text-dark-primary)] mb-2">Class Not Found</h3>
-              <p className="text-[var(--color-text-dark-secondary)] mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Class Not Found</h3>
+              <p className="text-gray-600 mb-6">
                 The class you&apos;re looking for doesn&apos;t exist or has been deleted.
               </p>
               <Link
                 href="/admin/courses"
-                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2 px-6 rounded-xl transition-colors"
+                className="bg-[#6366F1] hover:bg-[#4F46E5] text-white font-medium py-2 px-6 rounded-xl transition-colors"
               >
                 Back to Classes
               </Link>
@@ -267,28 +267,29 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                 href="/admin/courses"
                 className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-[var(--color-text-dark-primary)]">{classData.title}</h1>
-                <p className="text-[var(--color-text-dark-secondary)] mt-1">
-                  {classData.category_name} • {classData.formatted_price}
+                <h1 className="text-2xl font-bold text-gray-900">{classData.title}</h1>
+                <p className="text-gray-600 mt-1">
+                  {classData.category_name} • {classData.formatted_price} 
+                  {classData.level && ` • ${classData.level}`}
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
               <Link
                 href={`/admin/courses/${classData.id}/edit`}
-                className="bg-gray-100 hover:bg-gray-200 text-[var(--color-text-dark-primary)] font-medium py-2 px-4 rounded-xl transition-colors"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-2 px-4 rounded-xl transition-colors"
               >
                 Edit Class
               </Link>
               <button
                 onClick={() => setShowCreateModuleModal(true)}
                 disabled={creatingModule}
-                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center"
+                className="bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -332,10 +333,10 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-colors ${
                     activeTab === tab.id
-                      ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
-                      : 'border-transparent text-[var(--color-text-dark-secondary)] hover:text-[var(--color-text-dark-primary)] hover:border-gray-300'
+                      ? 'border-[#6366F1] text-[#6366F1]'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                   }`}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,26 +354,58 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
               {/* Class Info */}
               <div className="lg:col-span-2 space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-[var(--color-text-dark-primary)] mb-4">Class Information</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Class Information</h2>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-[var(--color-text-dark-secondary)]">Description</label>
-                      <p className="text-[var(--color-text-dark-primary)] mt-1">{classData.description}</p>
+                      <label className="text-sm font-medium text-gray-600">Description</label>
+                      <p className="text-gray-900 mt-1">{classData.description}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium text-[var(--color-text-dark-secondary)]">Category</label>
-                        <p className="text-[var(--color-text-dark-primary)] mt-1">{classData.category_name}</p>
+                        <label className="text-sm font-medium text-gray-600">Category</label>
+                        <p className="text-gray-900 mt-1">{classData.category_name}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-[var(--color-text-dark-secondary)]">Price</label>
-                        <p className="text-[var(--color-text-dark-primary)] mt-1">{classData.formatted_price}</p>
+                        <label className="text-sm font-medium text-gray-600">Price</label>
+                        <p className="text-gray-900 mt-1">{classData.formatted_price}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Level</label>
+                        <p className="text-gray-900 mt-1">{classData.level || 'Not specified'}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Members</label>
+                        <p className="text-gray-900 mt-1">{classData.member_count || 0}</p>
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-[var(--color-text-dark-secondary)]">Trailer URL</label>
-                      <p className="text-[var(--color-text-dark-primary)] mt-1 break-all">{classData.trailer}</p>
+                      <label className="text-sm font-medium text-gray-600">Trailer URL</label>
+                      <p className="text-gray-900 mt-1 break-all">{classData.trailer}</p>
                     </div>
+                    
+                    {/* New fields */}
+                    {classData.target_audience && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Target Audience</label>
+                        <p className="text-gray-900 mt-1 whitespace-pre-wrap">{classData.target_audience}</p>
+                      </div>
+                    )}
+                    
+                    {classData.benefits && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Benefits</label>
+                        <p className="text-gray-900 mt-1 whitespace-pre-wrap">{classData.benefits}</p>
+                      </div>
+                    )}
+                    
+                    {classData.course_details && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Course Details</label>
+                        <p className="text-gray-900 mt-1 whitespace-pre-wrap">{classData.course_details}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -380,38 +413,38 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
               {/* Stats */}
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-[var(--color-text-dark-primary)] mb-4">Statistics</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h2>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-[var(--color-text-dark-secondary)]">Total Modules</span>
-                      <span className="font-semibold text-[var(--color-text-dark-primary)]">{modules.length}</span>
+                      <span className="text-gray-600">Total Modules</span>
+                      <span className="font-semibold text-gray-900">{modules.length}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[var(--color-text-dark-secondary)]">Total Items</span>
-                      <span className="font-semibold text-[var(--color-text-dark-primary)]">
+                      <span className="text-gray-600">Total Items</span>
+                      <span className="font-semibold text-gray-900">
                         {modules.reduce((total, module) => total + (module.module_item?.length || 0), 0)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[var(--color-text-dark-secondary)]">Enrolled Students</span>
-                      <span className="font-semibold text-[var(--color-text-dark-primary)]">0</span>
+                      <span className="text-gray-600">Enrolled Students</span>
+                      <span className="font-semibold text-gray-900">{classData.member_count || 0}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-[var(--color-text-dark-primary)] mb-4">Quick Actions</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
                   <div className="space-y-3">
                     <button
                       onClick={() => setShowCreateModuleModal(true)}
                       disabled={creatingModule}
-                      className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-xl transition-colors"
+                      className="w-full bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-xl transition-colors"
                     >
                       Add New Module
                     </button>
                     <Link
                       href={`/course/${classData.id}`}
-                      className="w-full bg-gray-100 hover:bg-gray-200 text-[var(--color-text-dark-primary)] font-medium py-2 px-4 rounded-xl transition-colors block text-center"
+                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-2 px-4 rounded-xl transition-colors block text-center"
                     >
                       Preview Class
                     </Link>
@@ -427,11 +460,11 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
               <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-semibold text-[var(--color-text-dark-primary)]">Course Modules</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">Course Modules</h2>
                     <button
                       onClick={() => setShowCreateModuleModal(true)}
                       disabled={creatingModule}
-                      className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center"
+                      className="bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center"
                     >
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -449,14 +482,14 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2-2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                         </svg>
                       </div>
-                      <h3 className="text-lg font-medium text-[var(--color-text-dark-primary)] mb-2">No modules yet</h3>
-                      <p className="text-[var(--color-text-dark-secondary)] mb-4">
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No modules yet</h3>
+                      <p className="text-gray-600 mb-4">
                         Start building your course by adding the first module.
                       </p>
                       <button
                         onClick={() => setShowCreateModuleModal(true)}
                         disabled={creatingModule}
-                        className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-xl transition-colors"
+                        className="bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-xl transition-colors"
                       >
                         Create First Module
                       </button>
@@ -481,10 +514,10 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                                 </svg>
                               </button>
                               <div>
-                                <h3 className="text-lg font-semibold text-[var(--color-text-dark-primary)]">
+                                <h3 className="text-lg font-semibold text-gray-900">
                                   Module {module.order}: {module.title}
                                 </h3>
-                                <p className="text-sm text-[var(--color-text-dark-secondary)]">
+                                <p className="text-sm text-gray-600">
                                   {module.module_item?.length || 0} items
                                 </p>
                               </div>
@@ -492,7 +525,7 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                             <div className="flex items-center gap-2">
                               <Link
                                 href={`/admin/courses/${classData.id}/modules/${module.id}`}
-                                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-medium py-1.5 px-3 rounded-lg transition-colors"
+                                className="bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-medium py-1.5 px-3 rounded-lg transition-colors"
                               >
                                 Manage
                               </Link>
@@ -516,10 +549,10 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                                         {getItemTypeIcon(item.item_type)}
                                       </div>
                                       <div>
-                                        <p className="font-medium text-[var(--color-text-dark-primary)]">
+                                        <p className="font-medium text-gray-900">
                                           {(item.data as unknown as ModuleItemData)?.title || 'Untitled'}
                                         </p>
-                                        <p className="text-sm text-[var(--color-text-dark-secondary)]">
+                                        <p className="text-sm text-gray-600">
                                           {getItemTypeLabel(item.item_type)}
                                         </p>
                                       </div>
@@ -532,11 +565,11 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                                   </div>
                                 ))
                               ) : (
-                                <div className="text-center py-6 text-[var(--color-text-dark-secondary)]">
+                                <div className="text-center py-6 text-gray-600">
                                   <p>No content items in this module yet.</p>
                                   <Link
                                     href={`/admin/courses/${classData.id}/modules/${module.id}`}
-                                    className="text-[var(--color-primary)] hover:underline text-sm mt-2 inline-block"
+                                    className="text-[#6366F1] hover:underline text-sm mt-2 inline-block"
                                   >
                                     Add content to this module
                                   </Link>
@@ -558,7 +591,7 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
               <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-modal-enter">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-[var(--color-text-dark-primary)]">Create New Module</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">Create New Module</h3>
                   <button
                     onClick={() => {
                       if (!creatingModule) {
@@ -577,7 +610,7 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                 </div>
                 
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-[var(--color-text-dark-primary)] mb-2">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
                     Module Title <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -585,10 +618,10 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                     value={newModuleTitle}
                     onChange={(e) => {
                       setNewModuleTitle(e.target.value);
-                      if (error) setError(null); // Clear error when user starts typing
+                      if (error) setError(null);
                     }}
                     placeholder="e.g. Introduction to React Components"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none text-gray-900 placeholder-gray-500 bg-white transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none text-gray-900 placeholder-gray-500 bg-white transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                     disabled={creatingModule}
                     autoFocus
                     onKeyPress={(e) => {
@@ -597,23 +630,11 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                       }
                     }}
                   />
-                  <p className="text-xs text-[var(--color-text-dark-secondary)] mt-1">
+                  <p className="text-xs text-gray-600 mt-1">
                     Enter a descriptive title for your module
                   </p>
                 </div>
 
-                {/* Error in Modal */}
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 animate-fade-in">
-                    <div className="flex items-center">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {error}
-                    </div>
-                  </div>
-                )}
-                
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={() => {
@@ -621,7 +642,7 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                       setNewModuleTitle('');
                       setError(null);
                     }}
-                    className="px-4 py-2 text-[var(--color-text-dark-secondary)] hover:bg-gray-100 rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={creatingModule}
                   >
                     Cancel
@@ -629,7 +650,7 @@ export default function ClassManagementPage({ params }: ClassManagementPageProps
                   <button
                     onClick={handleCreateModule}
                     disabled={!newModuleTitle.trim() || creatingModule}
-                    className="px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium flex items-center justify-center min-w-[140px]"
+                    className="px-6 py-3 bg-[#6366F1] hover:bg-[#4F46E5] text-white rounded-xl transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium flex items-center justify-center min-w-[140px]"
                   >
                     {creatingModule ? (
                       <>

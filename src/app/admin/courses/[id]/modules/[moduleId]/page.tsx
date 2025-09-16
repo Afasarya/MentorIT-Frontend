@@ -138,8 +138,13 @@ export default function ModuleManagementPage({ params }: ModuleManagementPagePro
   };
 
   const handleCreateQuiz = async () => {
-    if (!quizForm.title || quizForm.questions.length === 0) {
-      setError('Quiz title and at least one question are required');
+    if (!quizForm.title.trim()) {
+      setError('Quiz title is required');
+      return;
+    }
+
+    if (quizForm.questions.length === 0) {
+      setError('At least one question is required');
       return;
     }
 
@@ -740,7 +745,7 @@ export default function ModuleManagementPage({ params }: ModuleManagementPagePro
                   </button>
                   <button
                     onClick={handleCreateQuiz}
-                    disabled={creatingItem || quizForm.questions.length === 0}
+                    disabled={creatingItem || !quizForm.title.trim() || quizForm.questions.length === 0}
                     className="px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium rounded-xl transition-colors flex items-center justify-center min-w-[140px]"
                   >
                     {creatingItem ? (

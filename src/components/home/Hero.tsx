@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 export default function Hero() {
   return (
@@ -25,24 +26,46 @@ export default function Hero() {
       <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 min-h-screen flex flex-col justify-center items-center text-center pt-20">
         
         {/* Tag Line - Lowered to avoid navbar overlap */}
-        <div className="inline-flex items-center px-6 py-3 bg-white border border-[var(--color-primary)] rounded-full mb-8 shadow-sm mt-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="inline-flex items-center px-6 py-3 bg-white border border-[var(--color-primary)] rounded-full mb-8 shadow-sm mt-12"
+        >
           <span className="text-[var(--color-primary)] text-sm font-medium">
             #RealImpactRealProject
           </span>
-        </div>
+        </motion.div>
 
         {/* Main Heading - Made smaller to fit in 1 line */}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[var(--color-text-dark-primary)] leading-tight mb-4 max-w-4xl">
+        <motion.h1 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[var(--color-text-dark-primary)] leading-tight mb-4 max-w-4xl"
+        >
           Portfolio to Meaningful Impact
-        </h1>
+        </motion.h1>
 
         {/* Description - Much smaller font size */}
-        <p className="text-sm sm:text-base lg:text-lg text-[var(--color-text-dark-secondary)] leading-relaxed mb-8 max-w-xl">
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="text-sm sm:text-base lg:text-lg text-[var(--color-text-dark-secondary)] leading-relaxed mb-8 max-w-xl"
+        >
           Bergabung dengan course untuk ciptakan portofolio yang berdampak
-        </p>
+        </motion.p>
 
         {/* CTA Button - Raised up */}
-        <button className="inline-flex items-center px-8 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] active:bg-[var(--color-primary-pressed)] text-white font-semibold rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-base mb-12">
+        <motion.button 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="inline-flex items-center px-8 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] active:bg-[var(--color-primary-pressed)] text-white font-semibold rounded-full transition-all duration-200 shadow-lg hover:shadow-xl text-base mb-12"
+        >
           Dapatkan Course
           <svg 
             className="ml-3 w-5 h-5" 
@@ -57,10 +80,15 @@ export default function Hero() {
               d="M17 8l4 4m0 0l-4 4m4-4H3" 
             />
           </svg>
-        </button>
+        </motion.button>
 
         {/* Hero Avatars - Much bigger */}
-        <div className="flex justify-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
+          className="flex justify-center"
+        >
           <Image
             src="/images/hero/hero-avatars.png"
             alt="Student Avatars"
@@ -68,10 +96,15 @@ export default function Hero() {
             height={240}
             className="object-contain"
           />
-        </div>
+        </motion.div>
 
         {/* Left Testimonial Card - Moved higher up */}
-        <div className="absolute left-4 lg:left-8 bottom-60 bg-white rounded-2xl p-5 shadow-lg max-w-xs hidden lg:block border border-gray-100">
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className="absolute left-4 lg:left-8 bottom-60 bg-white rounded-2xl p-5 shadow-lg max-w-xs hidden lg:block border border-gray-100"
+        >
           <div className="mb-3">
             <svg className="w-6 h-6 text-[var(--color-text-dark-tertiary)]" fill="currentColor" viewBox="0 0 24 24">
               <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
@@ -82,10 +115,15 @@ export default function Hero() {
             Platform kami hadir untuk kamu yang ingin menjadikan proyek nyata sebagai portofolio, sekaligus menciptakan dampak nyata.
           </p>
           <p className="text-xs text-[var(--color-text-dark-tertiary)] font-medium">- MentorIT</p>
-        </div>
+        </motion.div>
 
         {/* Right Testimonial Card - Moved much lower */}
-        <div className="absolute right-4 lg:right-8 bottom-16 bg-white rounded-2xl p-5 shadow-lg max-w-xs hidden lg:block border border-gray-100">
+        <motion.div 
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 1.4 }}
+          className="absolute right-4 lg:right-8 bottom-16 bg-white rounded-2xl p-5 shadow-lg max-w-xs hidden lg:block border border-gray-100"
+        >
           <div className="flex items-center space-x-1 mb-3">
             {[...Array(5)].map((_, i) => (
               <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
@@ -105,7 +143,7 @@ export default function Hero() {
               <p className="text-xs text-[var(--color-text-disabled)]">Web Developer</p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

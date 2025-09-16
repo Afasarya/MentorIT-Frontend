@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 export default function Mentors() {
   const [centerMentorId, setCenterMentorId] = useState<number | null>(null);
@@ -96,7 +97,13 @@ export default function Mentors() {
     <section className="py-16" style={{ backgroundColor: '#f5f4fe' }}>
       <div className="container mx-auto px-6 sm:px-8 lg:px-16">
         {/* Header */}
-        <div className="text-center mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-100px" }}
+          className="text-center mb-12"
+        >
           <span className="inline-block px-4 py-2 bg-white/80 backdrop-blur-sm border border-[var(--color-primary)] rounded-full text-sm font-medium mb-4">
             <span className="text-[var(--color-primary)]">#MentorTerbaikmu</span>
           </span>
@@ -106,10 +113,17 @@ export default function Mentors() {
           <p className="text-lg text-[var(--color-text-dark-secondary)] max-w-2xl mx-auto">
             Bergabung dengan course untuk ciptakan portofolio yang berdampak
           </p>
-        </div>
+        </motion.div>
 
         {/* Mentors Marquee - Full width without gradient overlays */}
-        <div className="relative overflow-hidden" ref={containerRef}>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true, margin: "-100px" }}
+          className="relative overflow-hidden" 
+          ref={containerRef}
+        >
           {/* Scrolling Content */}
           <div className="flex animate-mentors-marquee">
             {/* First set of mentors */}
@@ -205,7 +219,7 @@ export default function Mentors() {
               })}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <style jsx>{`

@@ -20,6 +20,10 @@ export default function CreateCoursePage() {
     category_name: '',
     price: '',
     trailer: '',
+    level: '',
+    target_audience: '',
+    benefits: '',
+    course_details: '',
     thumbnail: null as File | null
   });
 
@@ -158,6 +162,10 @@ export default function CreateCoursePage() {
         category_name: formData.category_name,
         price: priceValue.toString(), // Keep as string as expected by API
         trailer: formData.trailer.trim(),
+        level: formData.level.trim() || undefined,
+        target_audience: formData.target_audience.trim() || undefined,
+        benefits: formData.benefits.trim() || undefined,
+        course_details: formData.course_details.trim() || undefined,
         thumbnail: formData.thumbnail!
       };
 
@@ -167,6 +175,10 @@ export default function CreateCoursePage() {
         category_name: createData.category_name,
         price: createData.price,
         trailer: createData.trailer,
+        level: createData.level,
+        target_audience: createData.target_audience,
+        benefits: createData.benefits,
+        course_details: createData.course_details,
         thumbnail: createData.thumbnail?.name
       });
 
@@ -232,7 +244,7 @@ export default function CreateCoursePage() {
                         name="title"
                         value={formData.title}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
                           errors.title ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="Enter course title..."
@@ -253,7 +265,7 @@ export default function CreateCoursePage() {
                         value={formData.description}
                         onChange={handleInputChange}
                         rows={5}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors resize-none text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900 ${
                           errors.description ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="Enter course description..."
@@ -275,7 +287,7 @@ export default function CreateCoursePage() {
                           name="category_name"
                           value={formData.category_name}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 ${
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
                             errors.category_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                           }`}
                         >
@@ -303,7 +315,7 @@ export default function CreateCoursePage() {
                           name="price"
                           value={formData.price}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 ${
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
                             errors.price ? 'border-red-300 bg-red-50' : 'border-gray-300'
                           }`}
                           placeholder="299000"
@@ -317,6 +329,25 @@ export default function CreateCoursePage() {
                       </div>
                     </div>
 
+                    {/* Level */}
+                    <div>
+                      <label htmlFor="level" className="block text-sm font-medium text-gray-900 mb-2">
+                        Level
+                      </label>
+                      <select
+                        id="level"
+                        name="level"
+                        value={formData.level}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900"
+                      >
+                        <option value="">Select level</option>
+                        <option value="Mudah">Mudah</option>
+                        <option value="Sedang">Sedang</option>
+                        <option value="Sulit">Sulit</option>
+                      </select>
+                    </div>
+
                     {/* Trailer URL */}
                     <div>
                       <label htmlFor="trailer" className="block text-sm font-medium text-gray-900 mb-2">
@@ -328,7 +359,7 @@ export default function CreateCoursePage() {
                         name="trailer"
                         value={formData.trailer}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
                           errors.trailer ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="https://youtube.com/watch?v=..."
@@ -339,6 +370,54 @@ export default function CreateCoursePage() {
                       <p className="text-sm text-gray-600 mt-1">
                         YouTube, Vimeo, or other video platform URL
                       </p>
+                    </div>
+
+                    {/* Target Audience */}
+                    <div>
+                      <label htmlFor="target_audience" className="block text-sm font-medium text-gray-900 mb-2">
+                        Target Audience
+                      </label>
+                      <textarea
+                        id="target_audience"
+                        name="target_audience"
+                        value={formData.target_audience}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        placeholder="Who is this course for? (e.g., Beginners, Students, Professionals)"
+                      />
+                    </div>
+
+                    {/* Benefits */}
+                    <div>
+                      <label htmlFor="benefits" className="block text-sm font-medium text-gray-900 mb-2">
+                        Course Benefits
+                      </label>
+                      <textarea
+                        id="benefits"
+                        name="benefits"
+                        value={formData.benefits}
+                        onChange={handleInputChange}
+                        rows={4}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        placeholder="What will students learn and achieve from this course?"
+                      />
+                    </div>
+
+                    {/* Course Details */}
+                    <div>
+                      <label htmlFor="course_details" className="block text-sm font-medium text-gray-900 mb-2">
+                        Course Details
+                      </label>
+                      <textarea
+                        id="course_details"
+                        name="course_details"
+                        value={formData.course_details}
+                        onChange={handleInputChange}
+                        rows={4}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        placeholder="Additional course details, requirements, or information"
+                      />
                     </div>
                   </div>
                 </div>
@@ -361,7 +440,7 @@ export default function CreateCoursePage() {
                         name="thumbnail"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#6366F1] file:text-white hover:file:bg-[#4F46E5]"
                       />
                       {errors.thumbnail && (
                         <p className="text-red-600 text-sm mt-1">{errors.thumbnail}</p>
@@ -395,7 +474,7 @@ export default function CreateCoursePage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+                      className="w-full bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-300 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
                     >
                       {loading ? (
                         <>

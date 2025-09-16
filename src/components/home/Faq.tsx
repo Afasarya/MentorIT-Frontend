@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 export default function Faq() {
   const [openFaqId, setOpenFaqId] = useState<number | null>(null);
@@ -44,7 +45,13 @@ export default function Faq() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           
           {/* Left Side - Typography */}
-          <div className="lg:sticky lg:top-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="lg:sticky lg:top-8"
+          >
             <span className="inline-block px-4 py-2 bg-white/80 backdrop-blur-sm border border-[var(--color-primary)] rounded-full text-sm font-medium mb-4">
               <span className="text-[var(--color-primary)]">#Faq</span>
             </span>
@@ -54,13 +61,23 @@ export default function Faq() {
             <p className="text-lg text-[var(--color-text-dark-secondary)]">
               Bergabung dengan course untuk ciptakan portofolio yang berdampak
             </p>
-          </div>
+          </motion.div>
 
           {/* Right Side - FAQ Items */}
-          <div className="space-y-0">
-            {faqs.map((faq) => (
-              <div 
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="space-y-0"
+          >
+            {faqs.map((faq, index) => (
+              <motion.div 
                 key={faq.id} 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 + (index * 0.1) }}
+                viewport={{ once: true, margin: "-50px" }}
                 className="border-b border-gray-200 last:border-b-0"
               >
                 {/* FAQ Question Button */}
@@ -102,9 +119,9 @@ export default function Faq() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

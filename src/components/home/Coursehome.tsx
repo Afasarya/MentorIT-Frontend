@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
@@ -69,7 +70,13 @@ export default function Coursehome() {
         {/* Header - Left aligned typography with right search */}
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-12">
           {/* Left Content */}
-          <div className="lg:max-w-xl mb-8 lg:mb-0">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="lg:max-w-xl mb-8 lg:mb-0"
+          >
             <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-[var(--color-primary)] rounded-full mb-4">
               <span className="text-[var(--color-primary)] text-sm font-medium">
                 #CourseUntukmu
@@ -83,10 +90,16 @@ export default function Coursehome() {
             <p className="text-base sm:text-lg text-[var(--color-text-dark-secondary)] leading-relaxed">
               Bergabung dengan course untuk ciptakan portofolio yang berdampak
             </p>
-          </div>
+          </motion.div>
 
           {/* Right Search Component */}
-          <div className="lg:mt-12">
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="lg:mt-12"
+          >
             <div className="relative w-72">
               <input
                 type="text"
@@ -101,7 +114,7 @@ export default function Coursehome() {
                 </svg>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Course Grid - Better typography sizing */}
@@ -125,63 +138,70 @@ export default function Coursehome() {
               </div>
             ))
           ) : filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => (
-              <Link
+            filteredCourses.map((course, index) => (
+              <motion.div
                 key={course.id}
-                href={`/course/${course.id}`}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group w-full cursor-pointer"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true, margin: "-50px" }}
               >
-                {/* Course Image - Wider aspect ratio */}
-                <div className="relative overflow-hidden">
-                  <Image
-                    src={getThumbnailUrl(course.thumbnail)}
-                    alt={course.title}
-                    width={450}
-                    height={280}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/images/course.png'; // Fallback image
-                    }}
-                  />
-                </div>
-
-                {/* Course Content */}
-                <div className="p-5">
-                  {/* Rating and Price */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-1">
-                      <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <span className="text-sm font-medium text-[var(--color-text-dark-primary)]">
-                        4.8
-                      </span>
-                      <span className="text-sm text-[var(--color-text-dark-tertiary)]">
-                        (1190)
-                      </span>
-                    </div>
-                    <span className="text-lg font-bold text-[var(--color-primary)]">
-                      {formatPrice(course.price)}
-                    </span>
+                <Link
+                  href={`/course/${course.id}`}
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group w-full cursor-pointer block"
+                >
+                  {/* Course Image - Wider aspect ratio */}
+                  <div className="relative overflow-hidden">
+                    <Image
+                      src={getThumbnailUrl(course.thumbnail)}
+                      alt={course.title}
+                      width={450}
+                      height={280}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/images/course.png'; // Fallback image
+                      }}
+                    />
                   </div>
 
-                  {/* Course Title */}
-                  <h3 className="text-base font-semibold text-[var(--color-text-dark-primary)] mb-3 leading-tight line-clamp-2">
-                    {course.title}
-                  </h3>
-
-                  {/* Category */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">{course.category_name.charAt(0).toUpperCase()}</span>
+                  {/* Course Content */}
+                  <div className="p-5">
+                    {/* Rating and Price */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-1">
+                        <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span className="text-sm font-medium text-[var(--color-text-dark-primary)]">
+                          4.8
+                        </span>
+                        <span className="text-sm text-[var(--color-text-dark-tertiary)]">
+                          (1190)
+                        </span>
+                      </div>
+                      <span className="text-lg font-bold text-[var(--color-primary)]">
+                        {formatPrice(course.price)}
+                      </span>
                     </div>
-                    <span className="text-sm text-[var(--color-text-dark-secondary)]">
-                      {course.category_name}
-                    </span>
+
+                    {/* Course Title */}
+                    <h3 className="text-base font-semibold text-[var(--color-text-dark-primary)] mb-3 leading-tight line-clamp-2">
+                      {course.title}
+                    </h3>
+
+                    {/* Category */}
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">{course.category_name.charAt(0).toUpperCase()}</span>
+                      </div>
+                      <span className="text-sm text-[var(--color-text-dark-secondary)]">
+                        {course.category_name}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </motion.div>
             ))
           ) : (
             // No courses found
@@ -200,7 +220,13 @@ export default function Coursehome() {
         </div>
 
         {/* View More Button */}
-        <div className="text-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-50px" }}
+          className="text-center"
+        >
           <Link 
             href="/course"
             className="inline-flex items-center px-8 py-3 bg-[var(--color-text-dark-primary)] hover:bg-gray-800 text-white font-medium rounded-full transition-colors duration-200 text-sm"
@@ -220,7 +246,7 @@ export default function Coursehome() {
               />
             </svg>
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

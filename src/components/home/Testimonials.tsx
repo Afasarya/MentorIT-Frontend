@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 export default function Testimonials() {
   const testimonials = [
@@ -38,7 +39,13 @@ export default function Testimonials() {
     <section className="py-16" style={{ backgroundColor: '#f5f4fe' }}>
       <div className="container mx-auto px-6 sm:px-8 lg:px-16">
         {/* Header */}
-        <div className="text-center mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-100px" }}
+          className="text-center mb-12"
+        >
           <span className="inline-block px-4 py-2 bg-white/80 backdrop-blur-sm border border-[var(--color-primary)] rounded-full text-sm font-medium mb-4">
             <span className="text-[var(--color-primary)]">#KataMereka</span>
           </span>
@@ -48,13 +55,20 @@ export default function Testimonials() {
           <p className="text-lg text-[var(--color-text-dark-secondary)] max-w-2xl mx-auto">
             Bergabung dengan course untuk ciptakan portofolio yang berdampak
           </p>
-        </div>
+        </motion.div>
 
         {/* Testimonials Horizontal Grid - NO WHITE BORDER */}
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-0" style={{ backgroundColor: '#f5f4fe' }}>
             {testimonials.map((testimonial, index) => (
-              <div key={testimonial.id} className="flex">
+              <motion.div 
+                key={testimonial.id} 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                className="flex"
+              >
                 {/* Testimonial Content - NO bg-white */}
                 <div className="flex-1 p-6">
                   {/* Rating - At the very top */}
@@ -110,7 +124,7 @@ export default function Testimonials() {
                 {index < testimonials.length - 1 && (
                   <div className="w-px bg-gray-200 hidden lg:block"></div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

@@ -86,8 +86,8 @@ export default function AdminCoursesPage() {
           <div className="p-6">
             <div className="flex justify-center items-center h-64">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)] mx-auto mb-4"></div>
-                <p className="text-[var(--color-text-dark-secondary)]">Loading courses...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6366F1] mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading courses...</p>
               </div>
             </div>
           </div>
@@ -103,12 +103,12 @@ export default function AdminCoursesPage() {
           {/* Page Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-[var(--color-text-dark-primary)]">Course Management</h1>
-              <p className="text-[var(--color-text-dark-secondary)] mt-1">Create and manage courses, modules, and content</p>
+              <h1 className="text-2xl font-bold text-gray-900">Course Management</h1>
+              <p className="text-gray-600 mt-1">Create and manage courses, modules, and content</p>
             </div>
             <Link
               href="/admin/courses/create"
-              className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2 px-6 rounded-xl transition-colors flex items-center"
+              className="bg-[#6366F1] hover:bg-[#4F46E5] text-white font-medium py-2 px-6 rounded-xl transition-colors flex items-center"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -134,10 +134,10 @@ export default function AdminCoursesPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-[var(--color-text-dark-secondary)]">Total Courses</p>
-                  <p className="text-2xl font-bold text-[var(--color-text-dark-primary)]">{stats.totalClasses}</p>
+                  <p className="text-sm font-medium text-gray-600">Total Courses</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalClasses}</p>
                 </div>
-                <div className="bg-[var(--color-primary)] p-3 rounded-lg text-white">
+                <div className="bg-[#6366F1] p-3 rounded-lg text-white">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
@@ -149,8 +149,8 @@ export default function AdminCoursesPage() {
               <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-[var(--color-text-dark-secondary)]">{category.name}</p>
-                    <p className="text-2xl font-bold text-[var(--color-text-dark-primary)]">{category.count}</p>
+                    <p className="text-sm font-medium text-gray-600">{category.name}</p>
+                    <p className="text-2xl font-bold text-gray-900">{category.count}</p>
                   </div>
                   <div className={`p-3 rounded-lg text-white ${
                     index === 0 ? 'bg-blue-500' : index === 1 ? 'bg-green-500' : 'bg-purple-500'
@@ -173,13 +173,13 @@ export default function AdminCoursesPage() {
                   placeholder="Search courses by title or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none text-gray-900"
                 />
               </div>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none text-gray-900"
               >
                 <option value="all">All Categories</option>
                 {categories.map((category) => (
@@ -195,8 +195,8 @@ export default function AdminCoursesPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-[var(--color-text-dark-primary)]">Courses</h2>
-                <span className="text-sm text-[var(--color-text-dark-secondary)]">
+                <h2 className="text-lg font-semibold text-gray-900">Courses</h2>
+                <span className="text-sm text-gray-600">
                   {filteredClasses.length} course{filteredClasses.length !== 1 ? 's' : ''} found
                 </span>
               </div>
@@ -210,10 +210,10 @@ export default function AdminCoursesPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-[var(--color-text-dark-primary)] mb-2">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
                     {classes.length === 0 ? 'No courses yet' : 'No courses found'}
                   </h3>
-                  <p className="text-[var(--color-text-dark-secondary)] mb-6">
+                  <p className="text-gray-600 mb-6">
                     {classes.length === 0 
                       ? 'Start building your course catalog by creating your first course.'
                       : 'Try adjusting your search or filter criteria.'
@@ -222,7 +222,7 @@ export default function AdminCoursesPage() {
                   {classes.length === 0 && (
                     <Link
                       href="/admin/courses/create"
-                      className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2 px-6 rounded-xl transition-colors"
+                      className="bg-[#6366F1] hover:bg-[#4F46E5] text-white font-medium py-2 px-6 rounded-xl transition-colors"
                     >
                       Create Your First Course
                     </Link>
@@ -239,29 +239,48 @@ export default function AdminCoursesPage() {
                           className="w-full h-48 object-cover"
                         />
                         <div className="absolute top-4 left-4">
-                          <span className="bg-white/90 backdrop-blur-sm text-[var(--color-text-dark-primary)] text-xs font-medium px-3 py-1 rounded-full">
+                          <span className="bg-white/90 backdrop-blur-sm text-gray-900 text-xs font-medium px-3 py-1 rounded-full">
                             {course.category_name}
                           </span>
                         </div>
                         <div className="absolute top-4 right-4">
-                          <span className="bg-[var(--color-primary)]/90 backdrop-blur-sm text-white text-sm font-bold px-3 py-1 rounded-full">
+                          <span className="bg-[#6366F1]/90 backdrop-blur-sm text-white text-sm font-bold px-3 py-1 rounded-full">
                             {course.formatted_price}
                           </span>
                         </div>
+                        {/* Level Badge */}
+                        {course.level && (
+                          <div className="absolute bottom-4 left-4">
+                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                              course.level === 'Mudah' ? 'bg-green-100 text-green-800' :
+                              course.level === 'Sedang' ? 'bg-yellow-100 text-yellow-800' :
+                              course.level === 'Sulit' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {course.level}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="p-6">
-                        <h3 className="text-lg font-semibold text-[var(--color-text-dark-primary)] mb-2 line-clamp-2">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                           {course.title}
                         </h3>
-                        <p className="text-sm text-[var(--color-text-dark-secondary)] mb-4 line-clamp-3">
+                        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
                           {course.description}
                         </p>
+                        
+                        {/* Course stats */}
+                        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                          <span>{course.member_count || 0} students</span>
+                          {course.level && <span>{course.level}</span>}
+                        </div>
                         
                         <div className="flex items-center justify-between">
                           <Link
                             href={`/admin/courses/${course.id}`}
-                            className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                            className="bg-[#6366F1] hover:bg-[#4F46E5] text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
                           >
                             Manage Course
                           </Link>
@@ -269,7 +288,7 @@ export default function AdminCoursesPage() {
                           <div className="flex items-center gap-2">
                             <Link
                               href={`/admin/courses/${course.id}/edit`}
-                              className="bg-gray-100 hover:bg-gray-200 text-[var(--color-text-dark-primary)] text-sm font-medium py-2 px-3 rounded-lg transition-colors"
+                              className="bg-gray-100 hover:bg-gray-200 text-gray-900 text-sm font-medium py-2 px-3 rounded-lg transition-colors"
                             >
                               Edit
                             </Link>

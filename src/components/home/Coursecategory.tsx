@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 export default function Coursecategory() {
   const categories = [
@@ -32,7 +35,13 @@ export default function Coursecategory() {
     <section className="py-16" style={{ backgroundColor: '#f5f4fe' }}>
       <div className="container mx-auto px-6 sm:px-8 lg:px-16">
         {/* Header */}
-        <div className="text-center mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-100px" }}
+          className="text-center mb-12"
+        >
           <span className="inline-block px-4 py-2 bg-white/80 backdrop-blur-sm border border-[var(--color-primary)] rounded-full text-sm font-medium mb-4">
             <span className="text-[var(--color-primary)]">#KategoriCourse</span>
           </span>
@@ -42,13 +51,17 @@ export default function Coursecategory() {
           <p className="text-lg text-[var(--color-text-dark-secondary)] max-w-2xl mx-auto">
             Bergabung dengan course untuk ciptakan portofolio yang berdampak
           </p>
-        </div>
+        </motion.div>
 
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((category) => (
-            <div
+          {categories.map((category, index) => (
+            <motion.div
               key={category.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, margin: "-50px" }}
               className="bg-white rounded-2xl px-8 py-10 shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer"
             >
               {/* Horizontal Layout: Image + Content */}
@@ -93,7 +106,7 @@ export default function Coursecategory() {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
