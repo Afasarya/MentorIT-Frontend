@@ -1,131 +1,188 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
 interface CourseDetailProps {
   courseId: string;
 }
 
+interface Course {
+  id: number;
+  title: string;
+  description: string;
+  thumbnail: string;
+  price: number;
+  formatted_price: string;
+  category_name: string;
+  level: string;
+  target_audience: string;
+  benefits: string;
+  course_details: string;
+  member_count: number;
+  trailer: string;
+}
+
+interface Module {
+  id: number;
+  title: string;
+  order: number;
+  class_id: number;
+  module_item?: ModuleItem[];
+}
+
+interface ModuleItem {
+  id: number;
+  module_id: number;
+  item_type: 'submodule' | 'quiz' | 'project';
+  item_id: number;
+  order: number;
+  data?: {
+    title?: string;
+    description?: string;
+    content?: string;
+  };
+}
+
 export default function CourseDetail({ courseId }: CourseDetailProps) {
   const [activeTab, setActiveTab] = useState('deskripsi');
+  const [course, setCourse] = useState<Course | null>(null);
+  const [modules, setModules] = useState<Module[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock course data - sesuai dengan design figma
-  const course = {
-    id: courseId,
-    title: 'Website Development dengan Laravel dan React JS',
-    subtitle: 'Mempelajari konsep dasar web development',
-    description: 'Course Website Development dengan Laravel dan React JS ini hanya mempelajari teknik-teknik juga trik menjadi membuat kamu pada praktis. Ini menceritakan kita untuk praktis mendalami lebih dalam lagi tentang apa yang digunakan untuk membuat web-web yang komplek dan bisa digunakan masyarakat.',
-    image: '/images/course.png',
-    
-    // Stats sesuai design figma
-    stats: {
-      members: 280,
-      level: 'Sulit',
-      certificate: true,
-      duration: '12 minggu',
-      language: 'Indonesia'
-    },
+  useEffect(() => {
+    fetchCourseData();
+  }, [courseId]);
 
-    // Price dan CTA
-    price: {
-      current: 'Rp1.200.000',
-      original: null,
-      discount: null
-    },
+  const fetchCourseData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    // Untuk siapa course ini
-    targetAudience: [
-      'Pelajar/Mahasiswa',
-      'Pencari Kerja', 
-      'Kamu yang ingin switch career',
-      'Programmer',
-      'Umum'
-    ],
-
-    // Apa yang kamu dapatkan
-    benefits: [
-      'Akses selamanya',
-      'Durasi 4 jam',
-      'Project dengan impact nyata',
-      'Dedikasi 4 jam per minggu',
-      'Sertifikat kelulusan'
-    ],
-
-    // Detail course sections
-    detailSections: {
-      'akses-selamanya': { color: 'text-green-500', icon: '✓' },
-      'durasi-4-jam': { color: 'text-blue-500', icon: '⏱' },
-      'project-impact': { color: 'text-purple-500', icon: '🎯' },
-      'dedikasi-per-minggu': { color: 'text-orange-500', icon: '📅' },
-      'sertifikat-kelulusan': { color: 'text-red-500', icon: '🏆' }
-    },
-
-    // Modules data untuk tab Modul
-    modules: [
-      {
-        id: 1,
-        title: 'Dasar Pemrograman Web & Tools Set-up',
-        lessons: [
-          { name: 'Preparation Tools', duration: '12:00' },
-          { name: 'Pengenalan konsep client, server dan arsitektur fullstack', duration: '24:32' },
-          { name: 'HTML, CSS, dan JavaScript untuk antauka berbahan hian web', duration: '15:00' },
-          { name: 'Instalasi environment (PCIP) Composer, Laravel, Node.js, NPM/Yarn', duration: '20:10' }
-        ]
-      },
-      {
-        id: 2,
-        title: 'Backend Development dengan Laravel'
-      },
-      {
-        id: 3,
-        title: 'Frontend Development dengan React.js'
+      // Fetch course details
+      const courseResponse = await fetch(`${API_BASE_URL}/api/classes/class/${courseId}`);
+      if (!courseResponse.ok) {
+        throw new Error('Course not found');
       }
-    ],
+      const courseData = await courseResponse.json();
+      setCourse(courseData.data);
 
-    // Mentor info
-    mentor: {
-      name: 'Jennifer Coolhan',
-      role: 'Web Developer', 
-      image: '/images/mentors/mentors-1.svg',
-      experience: '5+ years',
-      students: '2,500+',
-      rating: 4.8
-    },
-
-    // Ratings & Reviews
-    rating: {
-      overall: 4.8,
-      totalReviews: 1190,
-      breakdown: {
-        5: 80,
-        4: 15,
-        3: 3,
-        2: 1,
-        1: 1
+      // Fetch course modules
+      try {
+        const modulesResponse = await fetch(`${API_BASE_URL}/api/classes/modules/${courseId}`);
+        if (modulesResponse.ok) {
+          const modulesData = await modulesResponse.json();
+          const modulesWithItems = await Promise.all(
+            (modulesData.data || []).map(async (module: Module) => {
+              try {
+                const itemsResponse = await fetch(`${API_BASE_URL}/api/classes/item-modules/${module.id}`);
+                if (itemsResponse.ok) {
+                  const itemsData = await itemsResponse.json();
+                  return { ...module, module_item: itemsData.data || [] };
+                }
+              } catch (err) {
+                console.error(`Error fetching items for module ${module.id}:`, err);
+              }
+              return { ...module, module_item: [] };
+            })
+          );
+          setModules(modulesWithItems);
+        }
+      } catch (moduleError) {
+        console.error('Error fetching modules:', moduleError);
       }
-    },
 
-    reviews: [
-      {
-        id: 1,
-        author: 'Jane Cooper',
-        role: 'Web Developer',
-        rating: 5,
-        comment: 'Aku jadi punya pengalaman sistem, langsung sama orang yang kubantu langsung sama cara yang kubantu waktu buat projek akhir',
-        avatar: 'JC'
-      },
-      {
-        id: 2,
-        author: 'Jane Cooper', 
-        role: 'Web Developer',
-        rating: 5,
-        comment: 'Aku jadi punya pengalaman sistem, langsung sama orang yang kubantu langsung sama cara yang kubantu waktu buat projek akhir',
-        avatar: 'JC'
-      }
-    ]
+    } catch (error) {
+      console.error('Error fetching course:', error);
+      setError('Failed to load course details');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const getThumbnailUrl = (thumbnail: string) => {
+    if (!thumbnail) return '/images/course.png';
+    if (thumbnail.startsWith('http')) return thumbnail;
+    // Remove "uploads/" prefix if it exists to avoid duplication
+    const cleanPath = thumbnail.startsWith('uploads/') ? thumbnail.substring('uploads/'.length) : thumbnail;
+    return `${API_BASE_URL}/uploads/${cleanPath}`;
+  };
+
+  // Parse target audience from string to array
+  const getTargetAudienceArray = (targetAudience: string) => {
+    if (!targetAudience) return ['Pelajar/Mahasiswa', 'Pencari Kerja', 'Kamu yang ingin switch career', 'Programmer', 'Umum'];
+    return targetAudience.split('\n').filter(item => item.trim() !== '');
+  };
+
+  // Parse benefits from string to array
+  const getBenefitsArray = (benefits: string) => {
+    if (!benefits) return ['Portofolio dari projek yang berdampak positif untuk masyarakat.', 'Sertifikat Kelulusan', 'Badge'];
+    return benefits.split('\n').filter(item => item.trim() !== '');
+  };
+
+  // Parse course details from string to array
+  const getCourseDetailsArray = (courseDetails: string) => {
+    if (!courseDetails) return ['Akses selamanya', 'Durasi 4 jam', 'Projek dengan impact nyata', 'Diskusi grup', 'Sertifikat kelulusan'];
+    return courseDetails.split('\n').filter(item => item.trim() !== '');
+  };
+
+  const getItemTypeLabel = (itemType: string) => {
+    switch (itemType) {
+      case 'submodule': return 'Lesson';
+      case 'quiz': return 'Quiz';
+      case 'project': return 'Project';
+      default: return 'Item';
+    }
+  };
+
+  const getItemTypeDuration = (itemType: string, index: number) => {
+    // Mock duration for display purposes
+    const durations = ['12:00', '24:32', '15:00', '20:10', '18:45', '22:15', '16:30', '14:20'];
+    return durations[index % durations.length] || '15:00';
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: '#f5f4fe' }}>
+        <div className="container mx-auto px-4 pt-20">
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading course details...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !course) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: '#f5f4fe' }}>
+        <div className="container mx-auto px-4 pt-20">
+          <div className="text-center py-12">
+            <div className="w-24 h-24 mx-auto mb-4 text-gray-300">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-600 mb-2">Course tidak ditemukan</h1>
+            <p className="text-gray-500 mb-6">{error || 'Course yang Anda cari tidak tersedia'}</p>
+            <Link 
+              href="/course"
+              className="inline-flex items-center px-6 py-3 bg-purple-600 text-white font-medium rounded-full hover:bg-purple-700 transition-colors"
+            >
+              Kembali ke Course
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f4fe' }}>
@@ -141,7 +198,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
             
             {/* Course Subtitle - Center */}
             <p className="text-lg sm:text-xl text-[var(--color-text-dark-secondary)] mb-12 leading-relaxed max-w-2xl mx-auto">
-              {course.subtitle}
+              {course.description.substring(0, 100)}...
             </p>
 
             {/* Stats Row - Full width spacing sesuai Figma */}
@@ -151,7 +208,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
               <div className="text-center">
                 <p className="text-sm text-[var(--color-text-dark-secondary)] mb-2">Member</p>
                 <div className="flex items-center justify-center space-x-1">
-                  <span className="text-xl font-bold text-[var(--color-text-dark-primary)]">{course.stats.members}</span>
+                  <span className="text-xl font-bold text-[var(--color-text-dark-primary)]">{course.member_count || 0}</span>
                   <span className="text-sm text-[var(--color-text-dark-secondary)]">aktif</span>
                 </div>
               </div>
@@ -166,7 +223,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                     <div className="w-2 h-6 bg-purple-600 rounded-sm"></div>
                     <div className="w-2 h-5 bg-purple-600 rounded-sm"></div>
                   </div>
-                  <span className="text-sm font-semibold text-[var(--color-text-dark-primary)]">{course.stats.level}</span>
+                  <span className="text-sm font-semibold text-[var(--color-text-dark-primary)]">{course.level || 'Mudah'}</span>
                 </div>
               </div>
 
@@ -198,10 +255,14 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
               <div className="mb-8">
                 <div className="relative w-full h-64 sm:h-80 lg:h-96 rounded-2xl overflow-hidden">
                   <Image
-                    src={course.image}
+                    src={getThumbnailUrl(course.thumbnail)}
                     alt={course.title}
                     fill
                     className="object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/images/course.png';
+                    }}
                   />
                 </div>
               </div>
@@ -254,12 +315,12 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                       Modul
                     </h2>
                     
-                    {course.modules.map((module) => (
+                    {modules.length > 0 ? modules.map((module) => (
                       <div key={module.id} className="border border-gray-200 rounded-xl overflow-hidden">
                         <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                           <div className="flex items-center space-x-4">
                             <span className="bg-purple-600 text-white text-sm font-bold px-3 py-1 rounded-full">
-                              {module.id}
+                              {module.order}
                             </span>
                             <h3 className="text-lg font-semibold text-[var(--color-text-dark-primary)]">
                               {module.title}
@@ -267,27 +328,35 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                           </div>
                         </div>
                         
-                        {module.lessons && (
+                        {module.module_item && module.module_item.length > 0 && (
                           <div className="px-6 py-4">
                             <div className="space-y-3">
-                              {module.lessons.map((lesson, index) => (
-                                <div key={index} className="flex items-center justify-between">
+                              {module.module_item.map((item, index) => (
+                                <div key={item.id} className="flex items-center justify-between">
                                   <div className="flex items-center space-x-3">
                                     <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
                                       <svg className="w-3 h-3 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M8 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                       </svg>
                                     </div>
-                                    <span className="text-[var(--color-text-dark-secondary)]">{lesson.name}</span>
+                                    <span className="text-[var(--color-text-dark-secondary)]">
+                                      {item.data?.title || `${getItemTypeLabel(item.item_type)} ${item.order}`}
+                                    </span>
                                   </div>
-                                  <span className="text-sm text-[var(--color-text-dark-tertiary)]">{lesson.duration}</span>
+                                  <span className="text-sm text-[var(--color-text-dark-tertiary)]">
+                                    {getItemTypeDuration(item.item_type, index)}
+                                  </span>
                                 </div>
                               ))}
                             </div>
                           </div>
                         )}
                       </div>
-                    ))}
+                    )) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>Belum ada modul tersedia untuk course ini.</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -303,8 +372,8 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                       <div className="w-64 h-80 rounded-2xl overflow-hidden relative">
                         {/* Mentor Image */}
                         <Image
-                          src={course.mentor.image}
-                          alt={course.mentor.name}
+                          src="/images/mentors/mentors-1.svg"
+                          alt="Course Mentor"
                           fill
                           className="object-cover"
                         />
@@ -313,10 +382,10 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                         <div className="absolute bottom-3 left-3 right-3">
                           <div className="bg-white rounded-xl px-3 py-2 border-2 border-white shadow-sm">
                             <h3 className="text-base font-semibold text-[var(--color-text-dark-primary)] mb-1">
-                              {course.mentor.name}
+                              Jennifer Coolhan
                             </h3>
                             <p className="text-sm text-[var(--color-text-dark-secondary)]">
-                              {course.mentor.role}
+                              Web Developer
                             </p>
                           </div>
                         </div>
@@ -334,7 +403,24 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
 
                     {/* Reviews Grid - 2 columns sesuai Testimonials.tsx */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                      {course.reviews.map((review) => (
+                      {[
+                        {
+                          id: 1,
+                          author: 'Jane Cooper',
+                          role: 'Web Developer',
+                          rating: 5,
+                          comment: 'Aku jadi punya pengalaman sistem, langsung sama orang yang kubantu langsung sama cara yang kubantu waktu buat projek akhir',
+                          avatar: 'JC'
+                        },
+                        {
+                          id: 2,
+                          author: 'Jane Cooper', 
+                          role: 'Web Developer',
+                          rating: 5,
+                          comment: 'Aku jadi punya pengalaman sistem, langsung sama orang yang kubantu langsung sama cara yang kubantu waktu buat projek akhir',
+                          avatar: 'JC'
+                        }
+                      ].map((review) => (
                         <div key={review.id} className="relative">
                           {/* Purple Left Border - sesuai Testimonials.tsx */}
                           <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-600 rounded-l"></div>
@@ -418,7 +504,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                 <div className="mb-6">
                   <p className="text-sm text-[var(--color-text-dark-secondary)] mb-2">Harga</p>
                   <div className="text-3xl font-bold text-[var(--color-text-dark-primary)] mb-4">
-                    {course.price.current}
+                    {course.formatted_price || `Rp${course.price.toLocaleString('id-ID')}`}
                   </div>
                   <Link 
                     href={`/course/${courseId}/checkout`}
@@ -435,7 +521,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                   Untuk siapa course ini?
                 </h3>
                 <ul className="space-y-3">
-                  {course.targetAudience.map((audience, index) => (
+                  {getTargetAudienceArray(course.target_audience).map((audience, index) => (
                     <li key={index} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
                       {/* Purple checkmark circle - KONSISTEN sesuai Figma */}
                       <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -455,11 +541,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                   Apa yang Kamu Dapatkan?
                 </h3>
                 <ul className="space-y-0">
-                  {[
-                    { text: 'Portofolio dari projek yang berdampak positif untuk masyarakat.' },
-                    { text: 'Sertifikat Kelulusan' },
-                    { text: 'Badge' }
-                  ].map((benefit, index) => (
+                  {getBenefitsArray(course.benefits).map((benefit, index) => (
                     <li key={index} className="flex items-center space-x-3 p-4 border-b border-gray-200 last:border-b-0">
                       {/* Purple checkmark circle - KONSISTEN sesuai Figma */}
                       <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -467,7 +549,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       </div>
-                      <span className="text-[var(--color-text-dark-secondary)] text-sm leading-relaxed">{benefit.text}</span>
+                      <span className="text-[var(--color-text-dark-secondary)] text-sm leading-relaxed">{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -480,13 +562,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                 </h3>
                 
                 <ul className="space-y-0">
-                  {[
-                    { text: 'Akses selamanya' },
-                    { text: 'Durasi 4 jam' },
-                    { text: 'Projek dengan impact nyata' },
-                    { text: 'Diskusi grup' },
-                    { text: 'Sertifikat kelulusan' }
-                  ].map((detail, index) => (
+                  {getCourseDetailsArray(course.course_details).map((detail, index) => (
                     <li key={index} className="flex items-center space-x-3 p-4 border-b border-gray-200 last:border-b-0">
                       {/* Green checkmark circle - KONSISTEN sesuai Figma */}
                       <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -494,7 +570,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       </div>
-                      <span className="text-[var(--color-text-dark-secondary)] text-sm">{detail.text}</span>
+                      <span className="text-[var(--color-text-dark-secondary)] text-sm">{detail}</span>
                     </li>
                   ))}
                 </ul>

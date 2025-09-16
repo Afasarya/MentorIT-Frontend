@@ -444,7 +444,7 @@ class ApiClient {
     return this.request<Class[]>('/api/classes/class');
   }
 
-  async getClass(id: number): Promise<ApiResponse<Class>> {
+  async getClass(id: string | number): Promise<ApiResponse<Class>> {
     return this.request<Class>(`/api/classes/class/${id}`);
   }
 
@@ -516,7 +516,7 @@ class ApiClient {
   }
 
   // Module Management endpoints
-  async getModules(classId: number): Promise<ApiResponse<Module[]>> {
+  async getModules(classId: string | number): Promise<ApiResponse<Module[]>> {
     return this.request<Module[]>(`/api/classes/modules/${classId}`);
   }
 

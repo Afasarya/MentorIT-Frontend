@@ -14,7 +14,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 const getThumbnailUrl = (thumbnail: string) => {
   if (!thumbnail) return '/images/course.png';
   if (thumbnail.startsWith('http')) return thumbnail;
-  return `${API_BASE_URL}/${thumbnail}`;
+  // Remove "uploads/" prefix if it exists to avoid duplication
+  const cleanPath = thumbnail.startsWith('uploads/') ? thumbnail.substring('uploads/'.length) : thumbnail;
+  return `${API_BASE_URL}/${cleanPath}`;
 };
 
 export default function AdminCoursesPage() {

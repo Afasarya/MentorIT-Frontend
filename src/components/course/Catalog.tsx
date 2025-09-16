@@ -39,7 +39,7 @@ export default function Catalog() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/class-categories`);
+      const response = await fetch(`${API_BASE_URL}/api/classes/category`);
       if (response.ok) {
         const data = await response.json();
         setCategories(data.data || []);
@@ -52,7 +52,7 @@ export default function Catalog() {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/classes`);
+      const response = await fetch(`${API_BASE_URL}/api/classes/class`);
       if (response.ok) {
         const data = await response.json();
         setCourses(data.data || []);
@@ -84,7 +84,9 @@ export default function Catalog() {
     if (thumbnail.startsWith('http')) {
       return thumbnail;
     }
-    return `${API_BASE_URL}/uploads/${thumbnail}`;
+    // Remove "uploads/" prefix if it exists to avoid duplication
+    const cleanPath = thumbnail.startsWith('uploads/') ? thumbnail.substring('uploads/'.length) : thumbnail;
+    return `${API_BASE_URL}/uploads/${cleanPath}`;
   };
 
   // Static fallback categories if API fails
