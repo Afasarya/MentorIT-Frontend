@@ -14,8 +14,15 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 const getThumbnailUrl = (thumbnail: string) => {
   if (!thumbnail) return '/images/course.png';
   if (thumbnail.startsWith('http')) return thumbnail;
-  // Remove "uploads/" prefix if it exists to avoid duplication
-  const cleanPath = thumbnail.startsWith('uploads/') ? thumbnail.substring('uploads/'.length) : thumbnail;
+  
+  // Handle different thumbnail path formats from backend
+  let cleanPath = thumbnail;
+  if (thumbnail.startsWith('uploads/')) {
+    cleanPath = thumbnail;
+  } else if (!thumbnail.startsWith('/')) {
+    cleanPath = `uploads/${thumbnail}`;
+  }
+  
   return `${API_BASE_URL}/${cleanPath}`;
 };
 
@@ -31,6 +38,16 @@ export default function AdminCoursesPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Auto clear error message after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const fetchData = async () => {
     try {
@@ -55,10 +72,31 @@ export default function AdminCoursesPage() {
     }
 
     try {
-      await apiClient.deleteClass(id);
+      const response = await apiClient.deleteClass(id);
+      
+      // Check if the response indicates an error
+      if (response.error) {
+        // Handle specific error cases based on status code or message
+        if (response.statusCode === 403 || response.message.includes('You can only delete classes you created')) {
+          setError('You can only delete courses that you created. This course belongs to another instructor.');
+        } else if (response.statusCode === 404) {
+          setError('Course not found. It may have already been deleted.');
+        } else {
+          setError(response.message || 'Failed to delete course. Please try again.');
+        }
+        return;
+      }
+
+      // Success case
+      setError(null);
+      const course = classes.find(c => c.id === id);
+      if (course) {
+        console.log(`Course "${course.title}" deleted successfully`);
+      }
       await fetchData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete class');
+    } catch (err: unknown) {
+      console.error('Delete class error:', err);
+      setError('An unexpected error occurred. Please try again.');
     }
   };
 

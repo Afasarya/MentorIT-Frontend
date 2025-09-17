@@ -4,6 +4,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 export interface ApiResponse<T> {
   message: string;
   data?: T;
+  error?: boolean;
+  statusCode?: number;
 }
 
 export interface User {
@@ -149,6 +151,7 @@ export interface SubModule {
   title: string;
   description: string;
   content: string;
+  youtube_url?: string;
 }
 
 export interface Quiz {
@@ -182,6 +185,7 @@ export interface CreateModuleItemRequest {
   title: string;
   description?: string;
   content?: string;
+  youtube_url?: string;
   // For quiz
   questions?: {
     question: string;
@@ -279,7 +283,9 @@ export interface Transaction {
   user_id: number;
   class_id: number;
   amount: number;
-  status: 'pending' | 'paid' | 'failed' | 'challenge' | 'unknown';
+  status: 'pending' | 'paid' | 'failed' | 'challenge' | 'unknown' | 'settlement';
+  failure_reason?: string;
+  class_name?: string;
   created_at: string;
   updated_at: string;
 }
@@ -334,11 +340,7 @@ class ApiClient {
     }
 
     try {
-      console.log('Making API request to:', url);
-      
       const response = await fetch(url, config);
-      
-      console.log('Response status:', response.status);
       
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
@@ -355,19 +357,26 @@ class ApiClient {
           data = JSON.parse(responseText);
         } catch (parseError) {
           console.error('JSON parse error:', parseError);
-          throw new Error(`Invalid JSON response: ${responseText}`);
+          // Return a structured error response instead of throwing
+          return {
+            message: 'Invalid response from server',
+            error: true,
+            statusCode: response.status
+          } as ApiResponse<T>;
         }
       } else {
         console.error('Non-JSON response:', responseText);
-        throw new Error(`Server returned non-JSON response: ${responseText}`);
+        // Return a structured error response instead of throwing
+        return {
+          message: 'Server returned an invalid response',
+          error: true,
+          statusCode: response.status
+        } as ApiResponse<T>;
       }
-
-      console.log('Response data:', data);
 
       if (!response.ok) {
         // If token is invalid/expired and this isn't already a refresh request
         if (response.status === 401 && !endpoint.includes('/auth/refresh-token')) {
-          console.log('Token appears to be invalid, clearing auth data');
           // Clear auth data on 401 errors
           if (typeof window !== 'undefined') {
             localStorage.removeItem('access_token');
@@ -377,23 +386,54 @@ class ApiClient {
           }
         }
         
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        // Return structured error response instead of throwing
+        return {
+          message: data.message || this.getStatusMessage(response.status),
+          error: true,
+          statusCode: response.status,
+          data: null
+        } as ApiResponse<T>;
       }
 
       return data;
     } catch (error) {
       console.error('API request error:', error);
       
-      // Better error messages for common issues
+      // Return structured error response instead of throwing
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Cannot connect to server. Please check if the backend is running on http://localhost:8080');
+        return {
+          message: 'Cannot connect to server. Please check your internet connection.',
+          error: true,
+          statusCode: 0
+        } as ApiResponse<T>;
       }
       
-      if (error instanceof Error) {
-        throw error;
-      }
-      
-      throw new Error('An unknown error occurred');
+      return {
+        message: error instanceof Error ? error.message : 'An unknown error occurred',
+        error: true,
+        statusCode: 0
+      } as ApiResponse<T>;
+    }
+  }
+
+  private getStatusMessage(status: number): string {
+    switch (status) {
+      case 400:
+        return 'Bad request. Please check your input.';
+      case 401:
+        return 'You are not authorized to perform this action.';
+      case 403:
+        return 'You do not have permission to perform this action.';
+      case 404:
+        return 'The requested resource was not found.';
+      case 409:
+        return 'There was a conflict with your request.';
+      case 422:
+        return 'The provided data is invalid.';
+      case 500:
+        return 'Server error. Please try again later.';
+      default:
+        return `Request failed with status ${status}`;
     }
   }
 
@@ -554,7 +594,9 @@ class ApiClient {
     const formData = new FormData();
     formData.append('name', categoryData.name);
     formData.append('description', categoryData.description);
-    formData.append('icon', categoryData.icon);
+    if (categoryData.icon) {
+      formData.append('icon', categoryData.icon);
+    }
 
     return this.request<ClassCategory>('/api/classes/category', {
       method: 'POST',

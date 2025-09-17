@@ -1,11 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient, type Transaction } from '@/lib/api';
 
-export default function PaymentPending() {
+// Loading component for Suspense
+function PaymentPendingLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f4fe' }}>
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[var(--color-primary)] mx-auto mb-4"></div>
+        <h2 className="text-xl font-semibold text-[var(--color-text-dark-primary)] mb-2">
+          Loading...
+        </h2>
+        <p className="text-[var(--color-text-dark-secondary)]">
+          Please wait
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Main component that uses useSearchParams
+function PaymentPendingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order_id');
@@ -25,10 +43,10 @@ export default function PaymentPending() {
         setLoading(true);
         // Use the new manual check endpoint that queries Midtrans directly
         const response = await apiClient.checkTransactionStatus(orderId);
-        setTransaction(response.data);
+        setTransaction(response.data || null);
         
         // If payment is successful, redirect to success page
-        if (response.data.status === 'paid' || response.data.status === 'settlement') {
+        if (response.data && (response.data.status === 'paid' || response.data.status === 'settlement')) {
           router.push(`/payment/success?order_id=${orderId}`);
           return;
         }
@@ -37,10 +55,10 @@ export default function PaymentPending() {
         // Fallback to database status if manual check fails
         try {
           const fallbackResponse = await apiClient.getTransactionStatus(orderId);
-          setTransaction(fallbackResponse.data);
+          setTransaction(fallbackResponse.data || null);
           
           // Check for success status in fallback too
-          if (fallbackResponse.data.status === 'paid' || fallbackResponse.data.status === 'settlement') {
+          if (fallbackResponse.data && (fallbackResponse.data.status === 'paid' || fallbackResponse.data.status === 'settlement')) {
             router.push(`/payment/success?order_id=${orderId}`);
             return;
           }
@@ -188,5 +206,14 @@ export default function PaymentPending() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Wrapper component with Suspense
+export default function PaymentPending() {
+  return (
+    <Suspense fallback={<PaymentPendingLoading />}>
+      <PaymentPendingContent />
+    </Suspense>
   );
 }

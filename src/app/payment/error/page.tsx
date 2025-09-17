@@ -1,10 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { apiClient, type Transaction } from '@/lib/api';
 
-export default function PaymentErrorPage() {
+// Loading component for Suspense
+function PaymentErrorLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main component that uses useSearchParams
+function PaymentErrorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order_id');
@@ -16,7 +29,7 @@ export default function PaymentErrorPage() {
       const fetchTransaction = async () => {
         try {
           const response = await apiClient.getTransactionStatus(orderId);
-          setTransaction(response.data);
+          setTransaction(response.data || null);
         } catch (error) {
           console.error('Failed to fetch transaction:', error);
         } finally {
@@ -133,5 +146,14 @@ export default function PaymentErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Wrapper component with Suspense
+export default function PaymentErrorPage() {
+  return (
+    <Suspense fallback={<PaymentErrorLoading />}>
+      <PaymentErrorContent />
+    </Suspense>
   );
 }

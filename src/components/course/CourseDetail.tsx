@@ -557,7 +557,7 @@ export default function CourseDetail({ courseId }: CourseDetailProps) {
                             <p className="text-sm text-[var(--color-text-dark-secondary)]">Selamat belajar dan raih sertifikatmu</p>
                           </div>
                           <Link 
-                            href={`/course/${courseId}/learn`}
+                            href={`/student/learning/${courseId}`}
                             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-xl transition-colors text-base block text-center"
                           >
                             Mulai Belajar

@@ -1,7 +1,7 @@
 'use client';
 
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import AdminLayout from '@/components/admin/AdminLayout';
+import TeacherLayout from '@/components/teacher/TeacherLayout';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -211,7 +211,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
       });
 
       await apiClient.updateClass(parseInt(id), updateData);
-      router.push('/admin/courses');
+      router.push('/teacher/courses');
     } catch (err) {
       console.error('Update course error:', err);
       setError(err instanceof Error ? err.message : 'Failed to update course');
@@ -222,25 +222,25 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
 
   if (loading) {
     return (
-      <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-        <AdminLayout>
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <TeacherLayout>
           <div className="p-6">
             <div className="flex justify-center items-center h-64">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6366F1] mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7c42e5] mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading course...</p>
               </div>
             </div>
           </div>
-        </AdminLayout>
+        </TeacherLayout>
       </ProtectedRoute>
     );
   }
 
   if (!course) {
     return (
-      <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-        <AdminLayout>
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <TeacherLayout>
           <div className="p-6">
             <div className="text-center py-12">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -253,43 +253,45 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                 The course you&apos;re looking for doesn&apos;t exist or has been deleted.
               </p>
               <Link
-                href="/admin/courses"
-                className="bg-[#6366F1] hover:bg-[#4F46E5] text-white font-medium py-2 px-6 rounded-xl transition-colors"
+                href="/teacher/courses"
+                className="bg-gradient-to-r from-[#7c42e5] to-purple-600 text-white font-medium py-2 px-6 rounded-xl transition-colors"
               >
                 Back to Courses
               </Link>
             </div>
           </div>
-        </AdminLayout>
+        </TeacherLayout>
       </ProtectedRoute>
     );
   }
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <AdminLayout>
-        <div className="p-6">
+    <ProtectedRoute allowedRoles={['teacher']}>
+      <TeacherLayout>
+        <div className="p-6 bg-gray-50 min-h-screen">
           {/* Page Header */}
           <div className="flex items-center gap-4 mb-8">
             <Link
-              href="/admin/courses"
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              href="/teacher/courses"
+              className="mr-4 p-2 hover:bg-white rounded-lg transition-colors shadow-sm border border-gray-200"
             >
               <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Edit Course</h1>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#7c42e5] to-purple-600 bg-clip-text text-transparent">
+                Edit Course
+              </h1>
               <p className="text-gray-600 mt-1">Update your course details and settings</p>
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
-              <div className="flex">
-                <svg className="w-5 h-5 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 animate-fade-in">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {error}
@@ -317,7 +319,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         name="title"
                         value={formData.title}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors text-gray-900 ${
                           errors.title ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="Enter course title..."
@@ -338,7 +340,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         value={formData.description}
                         onChange={handleInputChange}
                         rows={5}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors resize-none text-gray-900 ${
                           errors.description ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="Enter course description..."
@@ -360,7 +362,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                           name="category_name"
                           value={formData.category_name}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors text-gray-900 ${
                             errors.category_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                           }`}
                         >
@@ -388,7 +390,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                           name="price"
                           value={formData.price}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors text-gray-900 ${
                             errors.price ? 'border-red-300 bg-red-50' : 'border-gray-300'
                           }`}
                           placeholder="299000"
@@ -412,7 +414,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         name="level"
                         value={formData.level}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors text-gray-900"
                       >
                         <option value="">Select level</option>
                         <option value="Mudah">Mudah</option>
@@ -432,7 +434,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         name="trailer"
                         value={formData.trailer}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors text-gray-900 ${
                           errors.trailer ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="https://youtube.com/watch?v=..."
@@ -456,7 +458,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         value={formData.target_audience}
                         onChange={handleInputChange}
                         rows={3}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors resize-none text-gray-900"
                         placeholder="Who is this course for? (e.g., Beginners, Students, Professionals)"
                       />
                     </div>
@@ -472,7 +474,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         value={formData.benefits}
                         onChange={handleInputChange}
                         rows={4}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors resize-none text-gray-900"
                         placeholder="What will students learn and achieve from this course?"
                       />
                     </div>
@@ -488,7 +490,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         value={formData.course_details}
                         onChange={handleInputChange}
                         rows={4}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors resize-none text-gray-900"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors resize-none text-gray-900"
                         placeholder="Additional course details, requirements, or information"
                       />
                     </div>
@@ -529,7 +531,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                         name="thumbnail"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-colors text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#6366F1] file:text-white hover:file:bg-[#4F46E5]"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7c42e5]/20 focus:border-[#7c42e5] outline-none transition-colors text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#7c42e5] file:text-white hover:file:bg-purple-600"
                       />
                       {errors.thumbnail && (
                         <p className="text-red-600 text-sm mt-1">{errors.thumbnail}</p>
@@ -551,7 +553,7 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                     <button
                       type="submit"
                       disabled={updating}
-                      className="w-full bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-300 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+                      className="w-full bg-gradient-to-r from-[#7c42e5] to-purple-600 hover:from-purple-600 hover:to-[#7c42e5] disabled:from-gray-400 disabled:to-gray-400 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center"
                     >
                       {updating ? (
                         <>
@@ -569,8 +571,8 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
                     </button>
                     
                     <Link
-                      href="/admin/courses"
-                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+                      href="/teacher/courses"
+                      className="w-full bg-white hover:bg-gray-50 text-gray-900 font-medium py-3 px-4 rounded-xl transition-colors flex items-center justify-center border border-gray-200 shadow-sm hover:shadow-md"
                     >
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -583,7 +585,25 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
             </div>
           </form>
         </div>
-      </AdminLayout>
+
+        {/* Add CSS for animations */}
+        <style jsx global>{`
+          @keyframes fade-in {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .animate-fade-in {
+            animation: fade-in 0.3s ease-out;
+          }
+        `}</style>
+      </TeacherLayout>
     </ProtectedRoute>
   );
 }

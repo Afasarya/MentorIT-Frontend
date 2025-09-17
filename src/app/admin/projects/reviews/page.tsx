@@ -15,7 +15,7 @@ export default function ProjectReviewsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [reviewingSubmission, setReviewingSubmission] = useState<ProjectSubmission | null>(null);
   const [reviewFormData, setReviewFormData] = useState({
-    status: 'pending' as 'approved' | 'rejected' | 'under_review',
+    status: 'pending' as 'approved' | 'rejected' | 'under_review' | 'pending',
     review_note: '',
     grade: '',
     points: 0
@@ -49,7 +49,7 @@ export default function ProjectReviewsPage() {
     try {
       setReviewLoading(true);
       const reviewData: ReviewProjectSubmissionRequest = {
-        status: reviewFormData.status,
+        status: reviewFormData.status as 'approved' | 'rejected' | 'under_review',
         review_note: reviewFormData.review_note,
         grade: reviewFormData.grade,
         points: reviewFormData.points
@@ -360,7 +360,7 @@ export default function ProjectReviewsPage() {
                       value={reviewFormData.status}
                       onChange={(e) => setReviewFormData(prev => ({ 
                         ...prev, 
-                        status: e.target.value as 'approved' | 'rejected' | 'under_review' 
+                        status: e.target.value as 'approved' | 'rejected' | 'under_review' | 'pending'
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
                     >
@@ -394,7 +394,7 @@ export default function ProjectReviewsPage() {
                       max="1000"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
                     />
-                    <p className="text-sm text-gray-600 mt-1">Points will be added to student's experience if approved</p>
+                    <p className="text-sm text-gray-600 mt-1">Points will be added to student&apos;s experience if approved</p>
                   </div>
 
                   {/* Review Notes */}

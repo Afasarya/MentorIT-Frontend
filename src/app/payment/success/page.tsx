@@ -1,11 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient, type Transaction } from '@/lib/api';
 
-export default function PaymentSuccess() {
+// Loading component for Suspense
+function PaymentSuccessLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f4fe' }}>
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[var(--color-primary)] mx-auto mb-4"></div>
+        <h2 className="text-xl font-semibold text-[var(--color-text-dark-primary)] mb-2">
+          Loading...
+        </h2>
+        <p className="text-[var(--color-text-dark-secondary)]">
+          Please wait
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Main component that uses useSearchParams
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order_id');
@@ -25,13 +43,13 @@ export default function PaymentSuccess() {
         setLoading(true);
         // Use the new manual check endpoint that queries Midtrans directly
         const response = await apiClient.checkTransactionStatus(orderId);
-        setTransaction(response.data);
+        setTransaction(response.data || null);
       } catch (error: any) {
         console.error('Error checking transaction:', error);
         // Fallback to database status if manual check fails
         try {
           const fallbackResponse = await apiClient.getTransactionStatus(orderId);
-          setTransaction(fallbackResponse.data);
+          setTransaction(fallbackResponse.data || null);
         } catch (fallbackError) {
           console.error('Fallback error:', fallbackError);
           setError('Failed to verify payment status');
@@ -47,6 +65,7 @@ export default function PaymentSuccess() {
     const interval = setInterval(checkTransactionStatus, 10000);
     const timeout = setTimeout(() => {
       clearInterval(interval);
+      clearTimeout(timeout);
     }, 60000);
 
     return () => {
@@ -230,5 +249,14 @@ export default function PaymentSuccess() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Wrapper component with Suspense
+export default function PaymentSuccess() {
+  return (
+    <Suspense fallback={<PaymentSuccessLoading />}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
